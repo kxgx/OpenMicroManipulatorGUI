@@ -1,0 +1,72 @@
+# -*- mode: python ; coding: utf-8 -*-
+
+block_cipher = None
+
+a = Analysis(
+    ['main.py'],
+    pathex=[],
+    binaries=[],
+    datas=[
+        ('gui_components', 'gui_components'),
+        ('hardware', 'hardware'),
+        ('image_processing', 'image_processing'),
+    ],
+    hiddenimports=[
+        'PySide6',
+        'PySide6.QtWidgets',
+        'PySide6.QtCore',
+        'PySide6.QtGui',
+        'cv2',
+        'numpy',
+        'quaternion',
+        'serial',
+        'serial.tools.list_ports',
+        'colorama',
+        'skopt',
+        'pypylon',
+        'gui_components.image_viewer_widget',
+        'gui_components.realtime_controller_widget',
+        'hardware.open_micro_stage_api',
+        'hardware.camera_basler',
+        'hardware.camera_opencv',
+        'hardware.abstract_camera',
+        'image_processing.image_aligner',
+        'image_processing.image_point_tracker',
+        'mainwindow',
+        'optical_alignment',
+        'pypylon.pylon',
+    ],
+    hookspath=[],
+    hooksconfig={},
+    runtime_hooks=[],
+    excludes=[],
+    win_no_prefer_redirects=False,
+    win_private_assemblies=False,
+    cipher=block_cipher,
+    noarchive=False,
+)
+
+pyz = PYZ(a.pure, a.zipped_data, cipher=block_cipher)
+
+exe = EXE(
+    pyz,
+    a.scripts,
+    a.binaries,
+    a.zipfiles,
+    a.datas,
+    [],
+    name='OpenMicroManipulator',
+    debug=False,
+    bootloader_ignore_signals=False,
+    strip=False,
+    upx=True,
+    upx_exclude=[],
+    runtime_tmpdir=None,
+    console=False,
+    disable_windowed_traceback=False,
+    argv_emulation=False,
+    target_arch=None,
+    codesign_identity=None,
+    entitlements_file=None,
+    icon=None,
+)
