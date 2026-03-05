@@ -23,7 +23,7 @@ jobs:
       version: ${{ steps.meta.outputs.version }}
     steps:
       - name: 检出代码
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
         with:
           fetch-depth: 0
       
@@ -51,12 +51,12 @@ jobs:
     
     steps:
       - name: 检出代码
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
       
       - name: 安装 Python
-        uses: actions/setup-python@v5
+        uses: actions/setup-python@v6
         with:
-          python-version: '3.10'
+          python-version: '3.12'
           architecture: 'x64'
           cache: 'pip'
       
@@ -74,7 +74,7 @@ jobs:
           pyinstaller --clean build.spec
       
       - name: 上传 Windows 构建产物
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v5
         with:
           name: OpenMicroManipulator-Windows-x64
           path: source/dist/OpenMicroManipulator.exe
@@ -86,12 +86,12 @@ jobs:
       
     steps:
       - name: 检出代码
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
         
       - name: 安装 Python (x86)
-        uses: actions/setup-python@v5
+        uses: actions/setup-python@v6
         with:
-          python-version: '3.10'
+          python-version: '3.12'
           architecture: 'x86'
           cache: 'pip'
         
@@ -111,7 +111,7 @@ jobs:
           pyinstaller --clean build.spec
         
       - name: 上传 Windows x86 构建产物
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v5
         with:
           name: OpenMicroManipulator-Windows-x86
           path: source\dist\OpenMicroManipulator.exe
@@ -123,12 +123,12 @@ jobs:
       
     steps:
       - name: 检出代码
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
         
       - name: 安装 Python (ARM64)
-        uses: actions/setup-python@v5
+        uses: actions/setup-python@v6
         with:
-          python-version: '3.11'
+          python-version: '3.12'
           architecture: 'ARM64'
           cache: 'pip'
         
@@ -146,7 +146,7 @@ jobs:
           pyinstaller --clean build.spec
         
       - name: 上传 Windows ARM64 构建产物
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v5
         with:
           name: OpenMicroManipulator-Windows-ARM64
           path: source\dist\OpenMicroManipulator.exe
@@ -158,12 +158,12 @@ jobs:
     
     steps:
       - name: 检出代码
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
       
       - name: 安装 Python
-        uses: actions/setup-python@v5
+        uses: actions/setup-python@v6
         with:
-          python-version: '3.10'
+          python-version: '3.12'
           architecture: 'x64'
           cache: 'pip'
       
@@ -188,7 +188,7 @@ jobs:
           tar -czvf OpenMicroManipulator-Linux-x64.tar.gz OpenMicroManipulator
       
       - name: 上传 Linux x64 构建产物
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v5
         with:
           name: OpenMicroManipulator-Linux-x64
           path: source/dist/OpenMicroManipulator-Linux-x64.tar.gz
@@ -200,7 +200,7 @@ jobs:
     
     steps:
       - name: 检出代码
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
       
       - name: 安装 QEMU (ARM64 模拟)
         run: |
@@ -214,7 +214,7 @@ jobs:
       
       - name: 使用 Docker 构建 (ARM64)
         run: |
-          docker run --rm --platform linux/arm64 -v ${{ github.workspace }}:/workspace arm64v8/python:3.10-slim bash -c "
+          docker run --rm --platform linux/arm64 -v ${{ github.workspace }}:/workspace arm64v8/python:3.12-slim bash -c "
             set -e
             cd /workspace/source
             python -m pip install --upgrade pip
@@ -232,7 +232,7 @@ jobs:
           tar -czvf OpenMicroManipulator-Linux-ARM64.tar.gz OpenMicroManipulator
       
       - name: 上传 Linux ARM64 构建产物
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v5
         with:
           name: OpenMicroManipulator-Linux-ARM64
           path: source/dist/OpenMicroManipulator-Linux-ARM64.tar.gz
@@ -244,12 +244,12 @@ jobs:
     
     steps:
       - name: 检出代码
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
       
       - name: 安装 Python
-        uses: actions/setup-python@v5
+        uses: actions/setup-python@v6
         with:
-          python-version: '3.10'
+          python-version: '3.12'
           architecture: 'x64'
           cache: 'pip'
       
@@ -276,7 +276,7 @@ jobs:
           hdiutil create -format UDZO -srcfolder OpenMicroManipulator.app OpenMicroManipulator-macOS-Intel.dmg
       
       - name: 上传 macOS Intel 构建产物
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v5
         with:
           name: OpenMicroManipulator-macOS-Intel
           path: source/dist/OpenMicroManipulator-macOS-Intel.dmg
@@ -288,12 +288,12 @@ jobs:
     
     steps:
       - name: 检出代码
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
       
       - name: 安装 Python (ARM64)
-        uses: actions/setup-python@v5
+        uses: actions/setup-python@v6
         with:
-          python-version: '3.10'
+          python-version: '3.12'
           architecture: 'arm64'
           cache: 'pip'
       
@@ -320,7 +320,7 @@ jobs:
           hdiutil create -format UDZO -srcfolder OpenMicroManipulator.app -volname OpenMicroManipulator OpenMicroManipulator-macOS-ARM.dmg
       
       - name: 上传 macOS ARM 构建产物
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v5
         with:
           name: OpenMicroManipulator-macOS-ARM
           path: source/dist/OpenMicroManipulator-macOS-ARM.dmg
@@ -342,7 +342,7 @@ jobs:
     
     steps:
       - name: 下载所有构建产物
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v5
         with:
           path: artifacts
       
