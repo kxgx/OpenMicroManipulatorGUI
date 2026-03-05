@@ -102,6 +102,11 @@ jobs:
   build-windows-x86:
     name: 打包 Windows (x86)
     runs-on: windows-latest
+    strategy:
+      matrix:
+        include:
+          - architecture: 'x86'
+            python-arch: 'x86'
       
     steps:
       - name: 检出代码
@@ -111,7 +116,7 @@ jobs:
         uses: actions/setup-python@v6
         with:
           python-version: '3.11'
-          architecture: 'x86'
+          architecture: ${{ matrix.python-arch }}
           cache: 'pip'
         
       - name: 安装依赖
@@ -153,6 +158,11 @@ jobs:
   build-windows-arm:
     name: 打包 Windows (ARM64)
     runs-on: windows-latest
+    strategy:
+      matrix:
+        include:
+          - architecture: 'ARM64'
+            python-arch: 'ARM64'
       
     steps:
       - name: 检出代码
@@ -162,7 +172,7 @@ jobs:
         uses: actions/setup-python@v6
         with:
           python-version: '3.12'
-          architecture: 'ARM64'
+          architecture: ${{ matrix.python-arch }}
           cache: 'pip'
         
       - name: 安装依赖
@@ -204,6 +214,11 @@ jobs:
   build-linux:
     name: 打包 Linux (x64)
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        include:
+          - architecture: 'x64'
+            python-arch: 'x64'
     
     steps:
       - name: 检出代码
@@ -213,7 +228,7 @@ jobs:
         uses: actions/setup-python@v6
         with:
           python-version: '3.12'
-          architecture: 'x64'
+          architecture: ${{ matrix.python-arch }}
           cache: 'pip'
       
       - name: 安装依赖
@@ -257,7 +272,12 @@ jobs:
   build-linux-arm64:
     name: 打包 Linux (ARM64)
     runs-on: ubuntu-latest
-      
+    strategy:
+      matrix:
+        include:
+          - architecture: 'arm64'
+            python-arch: 'arm64'
+    
     steps:
       - name: 检出代码
         uses: actions/checkout@v5
@@ -266,7 +286,7 @@ jobs:
         uses: actions/setup-python@v6
         with:
           python-version: '3.12'
-          architecture: 'arm64'
+          architecture: ${{ matrix.python-arch }}
           cache: 'pip'
         
       - name: 安装依赖
@@ -312,6 +332,11 @@ jobs:
   build-macos:
     name: 打包 macOS (Intel)
     runs-on: macos-latest
+    strategy:
+      matrix:
+        include:
+          - architecture: 'x64'
+            python-arch: 'x64'
     
     steps:
       - name: 检出代码
@@ -321,7 +346,7 @@ jobs:
         uses: actions/setup-python@v6
         with:
           python-version: '3.12'
-          architecture: 'x64'
+          architecture: ${{ matrix.python-arch }}
           cache: 'pip'
       
       - name: 安装系统依赖
@@ -377,6 +402,11 @@ jobs:
   build-macos-arm:
     name: 打包 macOS (ARM/M1)
     runs-on: macos-latest
+    strategy:
+      matrix:
+        include:
+          - architecture: 'arm64'
+            python-arch: 'arm64'
     
     steps:
       - name: 检出代码
@@ -386,7 +416,7 @@ jobs:
         uses: actions/setup-python@v6
         with:
           python-version: '3.12'
-          architecture: 'arm64'
+          architecture: ${{ matrix.python-arch }}
           cache: 'pip'
       
       - name: 安装系统依赖
