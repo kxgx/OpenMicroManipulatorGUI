@@ -4,15 +4,6 @@ on:
   push:
     tags:
       - 'v*'
-    branches:
-      - main
-    paths:
-      - 'source/**'
-  pull_request:
-    branches:
-      - main
-    paths:
-      - 'source/**'
   workflow_dispatch:
 
 permissions:
