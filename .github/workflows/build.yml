@@ -252,61 +252,51 @@ jobs:
   build-linux-arm64:
     name: 打包 Linux (ARM64)
     runs-on: ubuntu-latest
-    
+      
     steps:
       - name: 检出代码
         uses: actions/checkout@v5
-      
-      - name: 安装 QEMU (ARM64 模拟)
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y qemu-user-static binfmt-support
-      
-      - name: 设置 ARM64 环境
-        uses: docker/setup-qemu-action@v3
+        
+      - name: 安装 Python (ARM64)
+        uses: actions/setup-python@v6
         with:
-          platforms: arm64
-      
-      - name: 使用 Docker 构建 (ARM64)
+          python-version: '3.12'
+          architecture: 'arm64'
+          cache: 'pip'
+        
+      - name: 安装依赖
         run: |
-          echo "=== 开始 Docker ARM64 构建 ==="
-          # 使用多阶段构建和缓存加速
-          docker run --rm --platform linux/arm64 -v ${{ github.workspace }}:/workspace arm64v8/python:3.12-slim bash -c "
-            set -e
-            echo '=== Python 版本检查 ==='
-            python --version
-            echo '=== PyInstaller 版本检查 ==='
-            pyinstaller --version
-            echo '=== 安装依赖（使用缓存）==='
-            cd /workspace/source
-            # 预创建缓存目录
-            mkdir -p ~/.cache/pip
-            # 并行安装主要依赖
-            python -m pip install --no-cache-dir --upgrade pip setuptools wheel
-            python -m pip install --no-cache-dir pyinstaller numpy
-            if [ -f requirements.txt ]; then
-              # 使用多个镜像源加速，优先使用官方源
-              python -m pip install --no-cache-dir -r requirements.txt || \
-              python -m pip install --no-cache-dir --index-url https://pypi.org/simple/ -r requirements.txt
-            fi
-            echo '=== 执行 PyInstaller ==='
-            python -m PyInstaller --clean build.spec
-            echo '=== 检查打包结果 ==='
-            ls -la dist/
-            if [ -f \"dist/OpenMicroManipulator\" ]; then
-              echo '✅ Linux ARM64 可执行文件打包成功'
-            else
-              echo '❌ Linux ARM64 可执行文件打包失败'
-              exit 1
-            fi
-            cp -r dist/* /workspace/source/dist/
-          "
-      
+          echo "=== 开始安装依赖 ==="
+          python -m pip install --upgrade pip
+          # 并行安装主要依赖加速
+          pip install pyinstaller numpy
+          if [ -f source/requirements.txt ]; then
+            pip install -r source/requirements.txt
+          fi
+        
+      - name: 打包 AppImage
+        run: |
+          cd source
+          echo "=== 开始 PyInstaller 打包 ==="
+          python --version
+          pyinstaller --version
+          echo "=== 执行 PyInstaller ==="
+          pyinstaller --clean build.spec
+          echo "=== 检查打包结果 ==="
+          ls -la dist/
+          if [ -f "dist/OpenMicroManipulator" ]; then
+            filesize=$(du -h "dist/OpenMicroManipulator" | cut -f1)
+            echo "✅ Linux ARM64 可执行文件打包成功，文件大小：$filesize"
+          else
+            echo "❌ Linux ARM64 可执行文件打包失败"
+            exit 1
+          fi
+        
       - name: 创建压缩包
         run: |
           cd source/dist
           tar -czvf OpenMicroManipulator-Linux-ARM64.tar.gz OpenMicroManipulator
-      
+        
       - name: 上传 Linux ARM64 构建产物
         uses: actions/upload-artifact@v5
         with:
