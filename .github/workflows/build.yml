@@ -101,6 +101,8 @@ jobs:
           pip install pyinstaller
           if (Test-Path source\requirements.txt) {
             pip install -r source\requirements.txt
+          } else {
+            Write-Host "requirements.txt not found, skipping..."
           }
         
       - name: 打包 EXE
@@ -126,7 +128,7 @@ jobs:
       - name: 安装 Python (ARM64)
         uses: actions/setup-python@v5
         with:
-          python-version: '3.10'
+          python-version: '3.11'
           architecture: 'ARM64'
           cache: 'pip'
         
@@ -203,7 +205,7 @@ jobs:
       - name: 安装 QEMU (ARM64 模拟)
         run: |
           sudo apt-get update
-          sudo apt-get install -y qemu-user-static
+          sudo apt-get install -y qemu-user-static binfmt-support
       
       - name: 设置 ARM64 环境
         uses: docker/setup-qemu-action@v3
@@ -213,6 +215,7 @@ jobs:
       - name: 使用 Docker 构建 (ARM64)
         run: |
           docker run --rm --platform linux/arm64 -v ${{ github.workspace }}:/workspace arm64v8/python:3.10-slim bash -c "
+            set -e
             cd /workspace/source
             python -m pip install --upgrade pip
             python -m pip install pyinstaller
@@ -220,6 +223,7 @@ jobs:
               python -m pip install -r requirements.txt
             fi
             python -m PyInstaller --clean build.spec
+            cp -r dist/* /workspace/source/dist/
           "
       
       - name: 创建压缩包
@@ -248,6 +252,10 @@ jobs:
           python-version: '3.10'
           architecture: 'x64'
           cache: 'pip'
+      
+      - name: 安装系统依赖
+        run: |
+          brew install gettext || true
       
       - name: 安装依赖
         run: |
@@ -288,6 +296,10 @@ jobs:
           python-version: '3.10'
           architecture: 'arm64'
           cache: 'pip'
+      
+      - name: 安装系统依赖
+        run: |
+          brew install gettext || true
       
       - name: 安装依赖
         run: |
