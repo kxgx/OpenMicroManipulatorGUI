@@ -56,7 +56,7 @@ jobs:
       - name: 安装 Python
         uses: actions/setup-python@v6
         with:
-          python-version: '3.15.0-alpha.5'
+          python-version: '3.12'
           architecture: 'x64'
           cache: 'pip'
         
@@ -156,7 +156,7 @@ jobs:
       - name: 安装 Python (ARM64)
         uses: actions/setup-python@v6
         with:
-          python-version: '3.15.0-alpha.5'
+          python-version: '3.12'
           architecture: 'ARM64'
           cache: 'pip'
         
@@ -207,7 +207,7 @@ jobs:
       - name: 安装 Python
         uses: actions/setup-python@v6
         with:
-          python-version: '3.15.0-alpha.5'
+          python-version: '3.12'
           architecture: 'x64'
           cache: 'pip'
       
@@ -271,7 +271,7 @@ jobs:
         run: |
           echo "=== 开始 Docker ARM64 构建 ==="
           # 使用多阶段构建和缓存加速
-          docker run --rm --platform linux/arm64 -v ${{ github.workspace }}:/workspace arm64v8/python:3.15.0-alpha.5-slim bash -c "
+          docker run --rm --platform linux/arm64 -v ${{ github.workspace }}:/workspace arm64v8/python:3.12-slim bash -c "
             set -e
             echo '=== Python 版本检查 ==='
             python --version
@@ -325,7 +325,7 @@ jobs:
       - name: 安装 Python
         uses: actions/setup-python@v6
         with:
-          python-version: '3.15.0-alpha.5'
+          python-version: '3.12'
           architecture: 'x64'
           cache: 'pip'
       
@@ -390,7 +390,7 @@ jobs:
       - name: 安装 Python (ARM64)
         uses: actions/setup-python@v6
         with:
-          python-version: '3.15.0-alpha.5'
+          python-version: '3.12'
           architecture: 'arm64'
           cache: 'pip'
       
