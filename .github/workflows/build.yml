@@ -333,11 +333,33 @@ jobs:
       - name: 打包 App
         run: |
           cd source
+          echo "=== 开始 PyInstaller 打包 ==="
+          python3 --version
+          pyinstaller --version
+          echo "=== 执行 PyInstaller ==="
           python3 -m PyInstaller --clean build.spec
+          echo "=== 检查打包结果 ==="
+          ls -la dist/
+          if [ -d "dist/OpenMicroManipulator.app" ]; then
+            echo "✅ App 打包成功"
+          else
+            echo "❌ App 打包失败"
+            exit 1
+          fi
       
       - name: 创建 DMG
         run: |
           cd source/dist
+          echo "=== 开始创建 DMG ==="
+          ls -la
+          if [ ! -d "OpenMicroManipulator.app" ]; then
+            echo "❌ OpenMicroManipulator.app 不存在"
+            exit 1
+          fi
+          echo "✅ OpenMicroManipulator.app 存在"
+          hdiutil create -format UDZO -srcfolder OpenMicroManipulator.app -volname OpenMicroManipulator OpenMicroManipulator-macOS-ARM.dmg
+          echo "✅ DMG 创建成功"
+          ls -la *.dmg
           hdiutil create -format UDZO -srcfolder OpenMicroManipulator.app -volname OpenMicroManipulator OpenMicroManipulator-macOS-ARM.dmg
       
       - name: 上传 macOS ARM 构建产物
