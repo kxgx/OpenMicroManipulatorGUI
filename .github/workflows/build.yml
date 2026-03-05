@@ -3,18 +3,23 @@ name: 多平台打包
 on:
   push:
     tags:
-      - 'v*'  # 当推送版本标签时触发
+      - 'v*'
     branches:
       - main
     paths:
       - 'source/**'
       - '.github/workflows/build.yml'
   pull_request:
-    branches: [ main ]
+    branches:
+      - main
     paths:
       - 'source/**'
       - '.github/workflows/build.yml'
-  workflow_dispatch:  # 允许手动触发
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  actions: read
 
 jobs:
   validate-tag:
@@ -60,6 +65,7 @@ jobs:
         with:
           python-version: '3.10'
           architecture: 'x64'
+          cache: 'pip'
       
       - name: 安装依赖
         run: |
@@ -94,6 +100,7 @@ jobs:
         with:
           python-version: '3.10'
           architecture: 'x86'
+          cache: 'pip'
       
       - name: 安装依赖
         run: |
@@ -128,6 +135,7 @@ jobs:
         with:
           python-version: '3.10'
           architecture: 'x64'
+          cache: 'pip'
       
       - name: 安装依赖
         run: |
@@ -169,6 +177,7 @@ jobs:
         with:
           python-version: '3.10'
           architecture: 'x64'
+          cache: 'pip'
       
       - name: 安装依赖
         run: |
@@ -208,6 +217,7 @@ jobs:
         with:
           python-version: '3.10'
           architecture: 'arm64'
+          cache: 'pip'
       
       - name: 安装依赖
         run: |
@@ -283,7 +293,12 @@ jobs:
   notify:
     name: 构建状态通知
     runs-on: ubuntu-latest
-    needs: [build-windows, build-windows-x86, build-linux, build-macos, build-macos-arm]
+    needs:
+      - build-windows
+      - build-windows-x86
+      - build-linux
+      - build-macos
+      - build-macos-arm
     if: always()
     
     steps:
