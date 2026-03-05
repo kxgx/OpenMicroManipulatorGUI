@@ -163,8 +163,10 @@ jobs:
       - name: 安装依赖
         run: |
           python -m pip install --upgrade pip
-          pip install pyinstaller
+          # 并行安装主要依赖加速
+          pip install pyinstaller numpy
           if (Test-Path source\requirements.txt) {
+            # 使用官方源直接安装（GitHub Actions 无需国内镜像）
             pip install -r source\requirements.txt
           }
         
@@ -268,18 +270,24 @@ jobs:
       - name: 使用 Docker 构建 (ARM64)
         run: |
           echo "=== 开始 Docker ARM64 构建 ==="
+          # 使用多阶段构建和缓存加速
           docker run --rm --platform linux/arm64 -v ${{ github.workspace }}:/workspace arm64v8/python:3.12-slim bash -c "
             set -e
             echo '=== Python 版本检查 ==='
             python --version
             echo '=== PyInstaller 版本检查 ==='
             pyinstaller --version
-            echo '=== 安装依赖 ==='
+            echo '=== 安装依赖（使用缓存）==='
             cd /workspace/source
-            python -m pip install --upgrade pip
-            python -m pip install pyinstaller
+            # 预创建缓存目录
+            mkdir -p ~/.cache/pip
+            # 并行安装主要依赖
+            python -m pip install --no-cache-dir --upgrade pip setuptools wheel
+            python -m pip install --no-cache-dir pyinstaller numpy
             if [ -f requirements.txt ]; then
-              python -m pip install -r requirements.txt
+              # 使用多个镜像源加速，优先使用官方源
+              python -m pip install --no-cache-dir -r requirements.txt || \
+              python -m pip install --no-cache-dir --index-url https://pypi.org/simple/ -r requirements.txt
             fi
             echo '=== 执行 PyInstaller ==='
             python -m PyInstaller --clean build.spec
