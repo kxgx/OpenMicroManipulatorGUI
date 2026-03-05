@@ -83,18 +83,18 @@ jobs:
   build-windows-x86:
     name: 打包 Windows (x86)
     runs-on: windows-latest
-    
+      
     steps:
       - name: 检出代码
         uses: actions/checkout@v4
-      
+        
       - name: 安装 Python (x86)
         uses: actions/setup-python@v5
         with:
           python-version: '3.10'
           architecture: 'x86'
           cache: 'pip'
-      
+        
       - name: 安装依赖
         run: |
           python -m pip install --upgrade pip
@@ -102,17 +102,52 @@ jobs:
           if (Test-Path source\requirements.txt) {
             pip install -r source\requirements.txt
           }
-      
+        
       - name: 打包 EXE
         run: |
           cd source
           pyinstaller --clean build.spec
-      
+        
       - name: 上传 Windows x86 构建产物
         uses: actions/upload-artifact@v4
         with:
           name: OpenMicroManipulator-Windows-x86
-          path: source/dist/OpenMicroManipulator.exe
+          path: source\dist\OpenMicroManipulator.exe
+          if-no-files-found: ignore
+    
+  build-windows-arm:
+    name: 打包 Windows (ARM64)
+    runs-on: windows-latest
+      
+    steps:
+      - name: 检出代码
+        uses: actions/checkout@v4
+        
+      - name: 安装 Python (ARM64)
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.10'
+          architecture: 'ARM64'
+          cache: 'pip'
+        
+      - name: 安装依赖
+        run: |
+          python -m pip install --upgrade pip
+          pip install pyinstaller
+          if (Test-Path source\requirements.txt) {
+            pip install -r source\requirements.txt
+          }
+        
+      - name: 打包 EXE
+        run: |
+          cd source
+          pyinstaller --clean build.spec
+        
+      - name: 上传 Windows ARM64 构建产物
+        uses: actions/upload-artifact@v4
+        with:
+          name: OpenMicroManipulator-Windows-ARM64
+          path: source\dist\OpenMicroManipulator.exe
           if-no-files-found: ignore
   
   build-linux:
@@ -286,6 +321,7 @@ jobs:
       - validate-tag
       - build-windows
       - build-windows-x86
+      - build-windows-arm
       - build-linux
       - build-linux-arm64
       - build-macos
@@ -315,6 +351,7 @@ jobs:
             ### 📦 下载
             - **Windows x64**: OpenMicroManipulator-Windows-x64.exe
             - **Windows x86**: OpenMicroManipulator-Windows-x86.exe
+            - **Windows ARM64**: OpenMicroManipulator-Windows-ARM64.exe
             - **Linux x64**: OpenMicroManipulator-Linux-x64.tar.gz
             - **Linux ARM64**: OpenMicroManipulator-Linux-ARM64.tar.gz
             - **macOS Intel**: OpenMicroManipulator-macOS-Intel.dmg
@@ -339,6 +376,7 @@ jobs:
     needs:
       - build-windows
       - build-windows-x86
+      - build-windows-arm
       - build-linux
       - build-linux-arm64
       - build-macos
@@ -353,6 +391,7 @@ jobs:
           echo "### 平台状态" >> $GITHUB_STEP_SUMMARY
           echo "- Windows x64: ${{ needs.build-windows.result }}" >> $GITHUB_STEP_SUMMARY
           echo "- Windows x86: ${{ needs.build-windows-x86.result }}" >> $GITHUB_STEP_SUMMARY
+          echo "- Windows ARM64: ${{ needs.build-windows-arm.result }}" >> $GITHUB_STEP_SUMMARY
           echo "- Linux x64: ${{ needs.build-linux.result }}" >> $GITHUB_STEP_SUMMARY
           echo "- Linux ARM64: ${{ needs.build-linux-arm64.result }}" >> $GITHUB_STEP_SUMMARY
           echo "- macOS Intel: ${{ needs.build-macos.result }}" >> $GITHUB_STEP_SUMMARY
