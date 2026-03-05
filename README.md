@@ -375,6 +375,10 @@ copies of the Software...
 
 ## 🙏 致谢
 
+- **特别感谢原始项目**: [0x23/OpenMicroManipulatorGUI](https://github.com/0x23/OpenMicroManipulatorGUI)
+  
+  本项目基于原项目进行了性能优化和功能改进，感谢原作者的开源贡献！
+
 - 感谢所有开源社区的贡献者
 - 特别感谢 AI 工具在性能优化方面提供的帮助
 - 使用以下优秀开源库：
@@ -388,6 +392,8 @@ copies of the Software...
 <div align="center">
 
 **如果这个项目对你有帮助，请给一个 ⭐ Star！**
+
+基于 [0x23/OpenMicroManipulatorGUI](https://github.com/0x23/OpenMicroManipulatorGUI) 优化改进
 
 Made with ❤️ by OpenMicroManipulator Team
 
