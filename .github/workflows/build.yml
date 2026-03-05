@@ -8,13 +8,11 @@ on:
       - main
     paths:
       - 'source/**'
-      - '.github/workflows/build.yml'
   pull_request:
     branches:
       - main
     paths:
       - 'source/**'
-      - '.github/workflows/build.yml'
   workflow_dispatch:
 
 permissions:
