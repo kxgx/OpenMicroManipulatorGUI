@@ -1,4 +1,4 @@
-name: Issue Management
+name: Issue 自动化管理
 
 on:
   issues:
@@ -6,13 +6,13 @@ on:
 
 jobs:
   auto-label:
-    name: Auto Label Issues
+    name: 自动标记 Issue
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout code
+      - name: 检出代码
         uses: actions/checkout@v4
       
-      - name: Add labels based on issue content
+      - name: 根据内容添加标签
         uses: actions/github-script@v7
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
@@ -21,7 +21,7 @@ jobs:
             const body = issue.body || '';
             const title = issue.title || '';
             
-            // Check for bug reports
+            // 检查错误报告
             if (body.includes('bug') || body.includes('错误') || title.includes('bug')) {
               await github.rest.issues.addLabels({
                 owner: context.repo.owner,
@@ -31,7 +31,7 @@ jobs:
               });
             }
             
-            // Check for feature requests
+            // 检查功能请求
             if (body.includes('feature') || body.includes('功能') || body.includes('request')) {
               await github.rest.issues.addLabels({
                 owner: context.repo.owner,
@@ -41,7 +41,7 @@ jobs:
               });
             }
             
-            // Check for hardware-related issues
+            // 检查硬件相关问题
             if (body.includes('camera') || body.includes('hardware') || 
                 body.includes('相机') || body.includes('硬件')) {
               await github.rest.issues.addLabels({
@@ -52,7 +52,7 @@ jobs:
               });
             }
             
-            // Check for GUI-related issues
+            // 检查 GUI 相关问题
             if (body.includes('gui') || body.includes('界面') || body.includes('UI')) {
               await github.rest.issues.addLabels({
                 owner: context.repo.owner,

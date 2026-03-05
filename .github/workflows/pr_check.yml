@@ -1,4 +1,4 @@
-name: PR Code Quality Check
+name: PR 代码质量检查
 
 on:
   pull_request:
@@ -8,21 +8,21 @@ on:
 
 jobs:
   commit-message:
-    name: Commit Message Check (Commitlint)
+    name: 提交信息检查 (Commitlint)
     runs-on: ubuntu-22.04
     steps:
-      - name: Checkout code
+      - name: 检出代码
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
       
-      - name: Run commitlint
+      - name: 运行 commitlint
         uses: wagoid/commitlint-github-action@v6
         with:
           configFile: .commitlintrc.json
 
   changes:
-    name: Detect Changes
+    name: 变更检测
     runs-on: ubuntu-22.04
     outputs:
       python: ${{ steps.filter.outputs.python }}
@@ -41,97 +41,97 @@ jobs:
               - 'setup.cfg'
               - '.commitlintrc.json'
   lint:
-    name: Code Linting (Flake8)
+    name: 代码风格检查 (Flake8)
     runs-on: ubuntu-22.04
     needs: changes
     if: ${{ needs.changes.outputs.python == 'true' }}
     steps:
-      - name: Checkout code
+      - name: 检出代码
         uses: actions/checkout@v4
       
-      - name: Set up Python
+      - name: 安装 Python
         uses: actions/setup-python@v5
         with:
           python-version: '3.10'
       
-      - name: Install dependencies
+      - name: 安装依赖
         run: |
           python -m pip install --upgrade pip
           pip install flake8
       
-      - name: Run Flake8
+      - name: 运行 Flake8
         run: |
-          # Stop the build if there are Python syntax errors or undefined names
+          # 如果有 Python 语法错误或未定义的变量，停止构建
           flake8 source --count --select=E9,F63,F7,F82 --show-source --statistics
           
-          # Exit-zero treats all errors as warnings (non-blocking)
+          # Exit-zero 将所有错误视为警告（非阻塞）
           flake8 source --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics
   
   type-check:
-    name: Type Checking (Mypy)
+    name: 类型检查 (Mypy)
     runs-on: ubuntu-22.04
     needs: changes
     if: ${{ needs.changes.outputs.python == 'true' }}
     steps:
-      - name: Checkout code
+      - name: 检出代码
         uses: actions/checkout@v4
       
-      - name: Set up Python
+      - name: 安装 Python
         uses: actions/setup-python@v5
         with:
           python-version: '3.10'
       
-      - name: Install dependencies
+      - name: 安装依赖
         run: |
           python -m pip install --upgrade pip
           pip install mypy
-          # Install project dependencies for proper type checking
+          # 安装项目依赖以进行正确的类型检查
           if [ -f source/requirements.txt ]; then
             pip install -r source/requirements.txt
           fi
       
-      - name: Run Mypy
+      - name: 运行 Mypy
         run: |
           mypy source/ --ignore-missing-imports --no-strict-optional || true
   
   security:
-    name: Security Check (Bandit)
+    name: 安全检查 (Bandit)
     runs-on: ubuntu-22.04
     needs: changes
     if: ${{ needs.changes.outputs.python == 'true' }}
     steps:
-      - name: Checkout code
+      - name: 检出代码
         uses: actions/checkout@v4
       
-      - name: Set up Python
+      - name: 安装 Python
         uses: actions/setup-python@v5
         with:
           python-version: '3.10'
       
-      - name: Install dependencies
+      - name: 安装依赖
         run: |
           python -m pip install --upgrade pip
           pip install bandit
       
-      - name: Run Bandit
+      - name: 运行 Bandit
         run: |
           bandit -r source/ -ll -ii
   
   test:
-    name: Run Tests
+    name: 运行测试
     runs-on: ubuntu-22.04
     needs: changes
     if: ${{ needs.changes.outputs.python == 'true' }}
     steps:
-      - name: Checkout code
+      - name: 检出代码
         uses: actions/checkout@v4
       
-      - name: Set up Python
+      - name: 安装 Python
         uses: actions/setup-python@v5
         with:
           python-version: '3.10'
       
-      - name: Install dependencies
+      - name: 安装依赖
         run: |
           python -m pip install --upgrade pip
           pip install pytest
@@ -139,27 +139,27 @@ jobs:
             pip install -r source/requirements.txt
           fi
       
-      - name: Run tests (if any)
+      - name: 运行测试（如有）
         run: |
-          echo "No tests configured yet"
-          # Uncomment when tests are added
+          echo "暂未配置测试"
+          # 添加测试后取消注释
           # pytest tests/ || true
   
   build:
-    name: Build Verification
+    name: 打包验证
     runs-on: ubuntu-22.04
     needs: [changes, lint, type-check, security]
     if: ${{ needs.changes.outputs.python == 'true' }}
     steps:
-      - name: Checkout code
+      - name: 检出代码
         uses: actions/checkout@v4
       
-      - name: Set up Python
+      - name: 安装 Python
         uses: actions/setup-python@v5
         with:
           python-version: '3.10'
       
-      - name: Install dependencies
+      - name: 安装依赖
         run: |
           python -m pip install --upgrade pip
           pip install pyinstaller
@@ -167,33 +167,33 @@ jobs:
             pip install -r source/requirements.txt
           fi
       
-      - name: Build with PyInstaller
+      - name: 使用 PyInstaller 打包
         run: |
           cd source
           pyinstaller --clean build.spec || true
   
   summary:
-    name: PR Summary
+    name: PR 检查总结
     runs-on: ubuntu-22.04
     needs: [commit-message, lint, type-check, security, test, build]
     if: always()
     steps:
-      - name: Check job status
+      - name: 检查任务状态
         run: |
-          echo "## PR Check Summary" >> $GITHUB_STEP_SUMMARY
+          echo "## PR 检查总结" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
-          echo "### Job Status" >> $GITHUB_STEP_SUMMARY
-          echo "- Commit Message: ${{ needs.commit-message.result }}" >> $GITHUB_STEP_SUMMARY
-          echo "- Lint: ${{ needs.lint.result }}" >> $GITHUB_STEP_SUMMARY
-          echo "- Type Check: ${{ needs.type-check.result }}" >> $GITHUB_STEP_SUMMARY
-          echo "- Security: ${{ needs.security.result }}" >> $GITHUB_STEP_SUMMARY
-          echo "- Test: ${{ needs.test.result }}" >> $GITHUB_STEP_SUMMARY
-          echo "- Build: ${{ needs.build.result }}" >> $GITHUB_STEP_SUMMARY
+          echo "### 任务状态" >> $GITHUB_STEP_SUMMARY
+          echo "- 提交信息：${{ needs.commit-message.result }}" >> $GITHUB_STEP_SUMMARY
+          echo "- 代码风格：${{ needs.lint.result }}" >> $GITHUB_STEP_SUMMARY
+          echo "- 类型检查：${{ needs.type-check.result }}" >> $GITHUB_STEP_SUMMARY
+          echo "- 安全检查：${{ needs.security.result }}" >> $GITHUB_STEP_SUMMARY
+          echo "- 测试：${{ needs.test.result }}" >> $GITHUB_STEP_SUMMARY
+          echo "- 打包验证：${{ needs.build.result }}" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
           
           if [ "${{ needs.commit-message.result }}" == "failure" ] || [ "${{ needs.lint.result }}" == "failure" ] || [ "${{ needs.type-check.result }}" == "failure" ] || [ "${{ needs.security.result }}" == "failure" ]; then
-            echo "❌ Some checks failed" >> $GITHUB_STEP_SUMMARY
+            echo "❌ 部分检查未通过" >> $GITHUB_STEP_SUMMARY
             exit 1
           else
-            echo "✅ All critical checks passed" >> $GITHUB_STEP_SUMMARY
+            echo "✅ 所有关键检查已通过" >> $GITHUB_STEP_SUMMARY
           fi
