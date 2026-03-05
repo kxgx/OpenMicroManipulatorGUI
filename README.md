@@ -207,11 +207,17 @@ OpenMicroManipulatorGUI/
 │   ├── build.spec              # PyInstaller 配置
 │   ├── build.bat               # 打包脚本
 │   ├── requirements.txt        # Python 依赖
-│   └── *.md                    # 中文文档
+│   └── *.md                    # 中文文档（启动优化说明、设备选择说明等）
 │
-├── AI_OPTIMIZATIONS.md          # AI优化详细说明
-├── LICENSE                      # MIT 许可证
-└── README.md                    # 本文件
+├── .github/workflows/          # GitHub Actions 配置
+│   ├── build.yml               # 多平台打包
+│   ├── pr_check.yml            # PR 代码质量检查
+│   ├── issue-management.yml    # Issue 自动化
+│   └── dependency-review.yml   # 依赖审查
+│
+├── GITHUB_ACTIONS.md           # GitHub Actions 完整文档
+├── LICENSE                     # MIT 许可证
+└── README.md                   # 本文件
 ```
 
 ---
@@ -268,13 +274,11 @@ OpenMicroManipulatorGUI/
 ## 📚 文档
 
 ### 中文文档
-- 📄 [**AI优化说明**](source/AI_OPTIMIZATIONS.md) - 详细的技术说明
+- 📄 [**GitHub Actions 配置说明**](GITHUB_ACTIONS.md) - CI/CD 完整配置文档
 - 📄 [**启动优化说明**](source/启动优化说明.md) - 启动性能优化细节
 - 📄 [**设备选择说明**](source/设备选择说明.md) - 设备选择功能指南
+- 📄 [**打包说明**](source/打包说明.md) - PyInstaller 打包指南
 - 📄 [**优化完成总结**](source/优化完成总结.md) - 完整优化总结
-
-### 英文文档
-- 📄 [**Project Upload Summary**](项目上传成功.md) - 项目上传总结
 
 ---
 
