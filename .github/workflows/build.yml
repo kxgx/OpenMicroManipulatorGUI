@@ -128,7 +128,7 @@ jobs:
       - name: 安装 Python (ARM64)
         uses: actions/setup-python@v6
         with:
-          python-version: '3.12'
+          python-version: '3.11'
           architecture: 'ARM64'
           cache: 'pip'
         
