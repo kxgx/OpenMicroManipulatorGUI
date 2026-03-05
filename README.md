@@ -8,13 +8,10 @@
 [![PySide6](https://img.shields.io/badge/PySide6-6.x-green.svg)](https://doc.qt.io/qtforpython-6/)
 [![OpenCV](https://img.shields.io/badge/OpenCV-4.x-white.svg)](https://opencv.org/)
 [![License](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
-[![多平台打包](https://github.com/kxgx/OpenMicroManipulatorGUI/actions/workflows/build.yml/badge.svg)](https://github.com/kxgx/OpenMicroManipulatorGUI/actions/workflows/build.yml)
 
 🤖 **部分代码经 AI优化，启动速度提升 50%**
 
-🔄 **GitHub Actions CI/CD** - 自动化的多平台打包和发布
-
-[功能特性](#-功能特性) • [快速开始](#-快速开始) • [AI优化说明](#-ai-优化亮点) • [CI/CD 配置](#-cicd-配置) • [技术栈](#-技术栈) • [文档](#-文档)
+[功能特性](#-功能特性) • [快速开始](#-快速开始) • [AI优化说明](#-ai-优化亮点) • [技术栈](#-技术栈) • [文档](#-文档)
 
 </div>
 
@@ -30,62 +27,6 @@ OpenMicroManipulator 是一个基于 Python 和 PySide6 的光学对准微操作
 - 🔧 精密位移控制
 - 📷 实时图像监控与处理
 - 🧪 实验室自动化设备
-
----
-
-## 🔄 CI/CD 配置
-
-本项目使用 **GitHub Actions** 实现持续集成/持续部署（CI/CD），自动化完成代码质量检查、多平台打包和发布流程。
-
-### ✅ 主要功能
-
-- **多平台自动打包**（Windows/Linux/macOS）
-- **自动发布Release**（基于版本标签）
-- **代码质量检查**（Flake8, Mypy, Bandit）
-- **依赖安全审查**（pip-audit, safety）
-- **并发控制**（避免重复构建，节省 60% CI 时间）
-
-### 📁 工作流文件
-
-所有配置位于 `.github/workflows/` 目录：
-
-```
-.github/workflows/
-├── build.yml                    # 多平台打包主流程
-├── pr_check.yml                 # PR 代码质量检查
-├── issue-management.yml         # Issue 自动化管理
-├── dependency-review.yml        # 依赖安全审查
-└── README_WORKFLOWS.md          # 工作流程详细说明
-```
-
-### 🚀 触发条件
-
-#### 多平台打包
-- ✅ 推送版本标签（如 `v1.0.0`）
-- ✅ 手动触发（workflow_dispatch）
-- ❌ 推送到 main 分支不会触发
-
-#### PR 代码质量检查
-- ✅ Pull Request 到 main 分支时自动触发
-- 检查项目：提交信息、代码风格、类型检查、安全扫描
-
-### 📦 支持的平台
-
-| 平台 | 架构 | 输出文件 |
-|------|------|----------|
-| **Windows** | x64 | OpenMicroManipulator-Windows-x64.exe |
-| **Windows** | x86 | OpenMicroManipulator-Windows-x86.exe |
-| **Linux** | x64 | OpenMicroManipulator-Linux-x64.tar.gz |
-| **macOS** | Intel | OpenMicroManipulator-macOS-Intel.dmg |
-| **macOS** | ARM/M1 | OpenMicroManipulator-macOS-ARM.dmg |
-
-### 📊 性能优化
-
-- **pip 缓存**: 节省 50-60% 构建时间
-- **路径过滤**: 节省 60-80% CI 时间
-- **并发控制**: 自动取消旧工作流，节省约 60% 资源
-
-📖 **详细文档**: [GitHub Actions 配置说明](GITHUB_ACTIONS.md)
 
 ---
 
