@@ -7,12 +7,15 @@
 
 import os
 import json
+import time
 
-from hardware.camera_opencv import OpenCVCamera
-from hardware.camera_basler import BaslerCamera
+# 性能优化：延迟加载大模块
+from optimization import OptimizedImports, LazyLoader
 
-import cv2
-import numpy as np
+# 初始化并行导入（在后台加载 numpy, cv2, PySide6）
+OptimizedImports.initialize()
+
+# 立即需要的轻量级导入
 from hardware.open_micro_stage_api import OpenMicroStageInterface
 from image_processing.image_point_tracker import ImagePointTracker
 from optical_alignment import OpticalAlignment
@@ -23,6 +26,10 @@ from gcode_runner import GCodeRunner
 
 # 多语言支持
 from i18n import get_translator, tr
+
+# 重型模块使用延迟加载（首次使用时才导入）
+cv2 = LazyLoader('cv2')  # OpenCV - 约 200ms
+np_lazy = LazyLoader('numpy')  # NumPy - 约 50ms
 
 from PySide6.QtWidgets import (
     QApplication, QWidget, QPushButton, QVBoxLayout, QHBoxLayout, QLabel, QGridLayout, QMessageBox, QButtonGroup,
@@ -53,6 +60,12 @@ class DeviceControlMainWindow(QMainWindow):
         
         # 翻译器
         self.translator = get_translator()
+        
+        # 等待关键模块加载完成（最多等待 5 秒）
+        start_time = time.time()
+        OptimizedImports.wait_loading(timeout=5.0)
+        load_time = time.time() - start_time
+        print(f"[启动优化] 模块加载完成，耗时：{load_time*1000:.0f}ms")
         
         self.init_ui()
 
@@ -382,11 +395,14 @@ class DeviceControlMainWindow(QMainWindow):
         cv2.circle(vis_image, (px, py), 4, (0, 0, 255), thickness=-1)
 
         if self.draw_buffer is None:
+            # 使用延迟加载的 numpy
+            np = OptimizedImports.get_numpy()
             self.draw_buffer = np.zeros_like(frame)
         else:
             # cv2.circle(self.draw_buffer, (px, py), radius=0, color=(255,255,255), thickness=1)
             cv2.line(self.draw_buffer, (px0, py0), (px, py), color=(255, 255, 255), thickness=1)
             mask = self.draw_buffer[:, :, 0] != 0
+            np = OptimizedImports.get_numpy()
             vis_image[mask, :] = np.array((0, 255, 100), dtype=np.uint8)
             # cv2.subtract(vis_image, self.draw_buffer, vis_image)
 
