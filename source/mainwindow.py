@@ -574,8 +574,8 @@ class DeviceControlMainWindow(QMainWindow):
     def show_serial_monitor(self):
         """显示串口监视器（独立窗口）"""
         if not hasattr(self, 'serial_monitor') or self.serial_monitor is None:
-            # 创建新的串口监视器窗口
-            self.serial_monitor = SerialMonitorWidget()
+            # 创建新的串口监视器窗口，传入当前串口对象
+            self.serial_monitor = SerialMonitorWidget(serial_port=self.oms.serial_port if hasattr(self.oms, 'serial_port') else None)
             
             # 连接信号（如果需要与主窗口通信）
             # self.serial_monitor.data_received.connect(self.on_serial_data_received)

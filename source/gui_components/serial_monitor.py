@@ -13,15 +13,22 @@ from i18n import tr
 
 
 class SerialMonitorWidget(QWidget):
-    """串口监视器独立窗口组件"""
+    """串口监视器独立窗口组件 - 监控主程序已连接的串口"""
     
     # 信号
     data_received = Signal(str)
     data_sent = Signal(str)
     
-    def __init__(self, parent=None):
+    def __init__(self, serial_port=None, parent=None):
+        """
+        初始化串口监视器
+        
+        Args:
+            serial_port: 已经打开的串口对象（从主程序传入）
+            parent: 父窗口
+        """
         super().__init__(parent)
-        self.serial_port = None
+        self.serial_port = serial_port  # 使用传入的串口对象
         self.monitor_timer = QTimer()
         self.monitor_timer.timeout.connect(self.check_serial_data)
         self.is_monitoring = False
@@ -43,20 +50,16 @@ class SerialMonitorWidget(QWidget):
         title_label.setFont(QFont("Arial", 12, QFont.Weight.Bold))
         layout.addWidget(title_label)
         
-        # 串口选择
-        port_layout = QHBoxLayout()
-        port_label = QLabel(tr('serial_port_label'))
-        self.port_combo = QComboBox()
-        self.refresh_ports()
+        # 串口信息显示（只读）
+        info_layout = QHBoxLayout()
+        info_label = QLabel(tr('monitoring_port'))
+        self.port_info_label = QLabel(tr('not_connected'))
+        self.port_info_label.setStyleSheet("color: #ffaa00; font-weight: bold;")
         
-        refresh_btn = QPushButton(tr('refresh_btn'))
-        refresh_btn.clicked.connect(self.refresh_ports)
-        refresh_btn.setFixedWidth(60)
-        
-        port_layout.addWidget(port_label)
-        port_layout.addWidget(self.port_combo)
-        port_layout.addWidget(refresh_btn)
-        layout.addLayout(port_layout)
+        info_layout.addWidget(info_label)
+        info_layout.addWidget(self.port_info_label)
+        info_layout.addStretch()
+        layout.addLayout(info_layout)
         
         # 数据显示区
         self.display = QTextEdit()
@@ -93,16 +96,23 @@ class SerialMonitorWidget(QWidget):
         
         self.setLayout(layout)
     
-    def refresh_ports(self):
-        """刷新可用串口列表"""
-        self.port_combo.clear()
-        try:
-            from serial.tools.list_ports import comports
-            ports = comports()
-            for port in ports:
-                self.port_combo.addItem(f"{port.device} - {port.description}")
-        except Exception as e:
-            print(f"[SerialMonitor] 获取串口列表失败：{e}")
+    def set_serial_port(self, serial_port):
+        """
+        设置要监控的串口对象
+        
+        Args:
+            serial_port: 已打开的串口对象
+        """
+        self.serial_port = serial_port
+        if serial_port and serial_port.is_open:
+            port_name = serial_port.port
+            baudrate = serial_port.baudrate
+            self.port_info_label.setText(f"{port_name} @ {baudrate}")
+            self.port_info_label.setStyleSheet("color: #00ff00; font-weight: bold;")
+            print(f"[SerialMonitor] 开始监控串口：{port_name} @ {baudrate}")
+        else:
+            self.port_info_label.setText(tr('not_connected'))
+            self.port_info_label.setStyleSheet("color: #ffaa00; font-weight: bold;")
     
     def toggle_monitoring(self):
         """切换监控状态"""
@@ -113,15 +123,17 @@ class SerialMonitorWidget(QWidget):
     
     def start_monitoring(self):
         """开始监控"""
-        port_name = self.port_combo.currentText().split(' - ')[0]
+        if not self.serial_port or not self.serial_port.is_open:
+            self.append_message(f"[Error] {tr('not_connected')}", '#ff0000')
+            return
         
         try:
-            self.serial_port = serial.Serial(port_name, timeout=0.1)
             self.monitor_timer.start(50)  # 50ms 检查一次
             self.is_monitoring = True
             self.start_btn.setText(tr('stop_monitoring'))
             self.start_btn.setChecked(True)
-            self.append_message(f"[Connected] {port_name}", '#00ff00')
+            port_name = self.serial_port.port
+            self.append_message(f"[Monitoring] {port_name}", '#00ff00')
             print(f"[SerialMonitor] 已开始监控：{port_name}")
         except Exception as e:
             self.append_message(f"[Error] {str(e)}", '#ff0000')
@@ -130,21 +142,15 @@ class SerialMonitorWidget(QWidget):
     
     def stop_monitoring(self):
         """停止监控"""
-        if self.serial_port:
-            try:
-                self.serial_port.close()
-            except:
-                pass
-            self.serial_port = None
-        
         self.monitor_timer.stop()
         self.is_monitoring = False
         self.start_btn.setText(tr('start_monitoring'))
         self.start_btn.setChecked(False)
         
+        # 注意：不关闭串口，因为这是主程序正在使用的串口
         if hasattr(self, 'serial_port') and self.serial_port:
             port_name = self.serial_port.port
-            self.append_message(f"[Disconnected] {port_name}", '#ffaa00')
+            self.append_message(f"[Stopped monitoring] {port_name}", '#ffaa00')
     
     def check_serial_data(self):
         """检查串口数据"""

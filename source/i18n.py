@@ -119,6 +119,8 @@ TRANSLATIONS = {
         'stop_monitoring': '停止监控',
         'clear_btn': '清空',
         'auto_scroll': '自动滚动',
+        'monitoring_port': '监控串口:',
+        'not_connected': '未连接',
         
         # 界面标签
         'step_size_label': '步距 [µm]',
@@ -270,6 +272,8 @@ TRANSLATIONS = {
         'stop_monitoring': 'Stop Monitoring',
         'clear_btn': 'Clear',
         'auto_scroll': 'Auto Scroll',
+        'monitoring_port': 'Monitoring Port:',
+        'not_connected': 'Not Connected',
         
         # Interface Labels
         'step_size_label': 'Step Size [µm]',
