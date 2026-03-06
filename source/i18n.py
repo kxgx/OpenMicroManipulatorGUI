@@ -81,11 +81,21 @@ TRANSLATIONS = {
         'menu_help': '帮助 (&H)',
         'action_language_settings': '语言设置...',
         'action_about': '关于',
+        'action_serial_monitor': '串口监视器',
         
         # 关于对话框
         'about_version': '版本',
         'about_description': '微操作台控制系统 - 基于 PySide6 和 Python',
         'about_license': 'License: MIT',
+        
+        # 串口监视器
+        'serial_monitor_title': '串口监视器',
+        'serial_port_label': '串口:',
+        'refresh_btn': '刷新',
+        'start_monitoring': '开始监控',
+        'stop_monitoring': '停止监控',
+        'clear_btn': '清空',
+        'auto_scroll': '自动滚动',
     },
     
     'en_US': {
@@ -165,11 +175,21 @@ TRANSLATIONS = {
         'menu_help': 'Help(&H)',
         'action_language_settings': 'Language Settings...',
         'action_about': 'About',
+        'action_serial_monitor': 'Serial Monitor',
         
         # About Dialog
         'about_version': 'Version',
         'about_description': 'Micro Stage Control System - Based on PySide6 and Python',
         'about_license': 'License: MIT',
+        
+        # Serial Monitor
+        'serial_monitor_title': 'Serial Monitor',
+        'serial_port_label': 'Port:',
+        'refresh_btn': 'Refresh',
+        'start_monitoring': 'Start Monitoring',
+        'stop_monitoring': 'Stop Monitoring',
+        'clear_btn': 'Clear',
+        'auto_scroll': 'Auto Scroll',
     },
 }
 

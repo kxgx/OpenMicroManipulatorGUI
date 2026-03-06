@@ -22,7 +22,11 @@ from optical_alignment import OpticalAlignment
 from gui_components.image_viewer_widget import ImageViewerWidget
 from gui_components.realtime_controller_widget import RealtimeControllerWidget
 from gui_components.language_settings import LanguageSettingsDialog
+from gui_components.serial_monitor import SerialMonitorWidget
 from gcode_runner import GCodeRunner
+
+# 配置管理
+from app_config import get_config, save_config
 
 # 多语言支持
 from i18n import get_translator, tr
@@ -60,6 +64,14 @@ class DeviceControlMainWindow(QMainWindow):
         
         # 翻译器
         self.translator = get_translator()
+        
+        # 加载配置
+        self.config = get_config()
+        
+        # 应用保存的语言设置
+        saved_language = self.config.language
+        if saved_language:
+            self.translator.set_language(saved_language)
         
         # 等待关键模块加载完成（最多等待 5 秒）
         start_time = time.time()
@@ -116,7 +128,7 @@ class DeviceControlMainWindow(QMainWindow):
 
         # Step size section
         main_layout.addSpacing(25)
-        main_layout.addWidget(self.create_label("Step Size [µm]"))
+        main_layout.addWidget(self.create_label(tr('step_size_label')))
 
         step_layout = QHBoxLayout()
         self.step_button_group = QButtonGroup()
@@ -132,7 +144,7 @@ class DeviceControlMainWindow(QMainWindow):
 
         # acceleration
         accel_layout, self.accel_spinbox = self.create_spinbox(
-            label_text="Acceleration:",
+            label_text=tr('acceleration_label'),
             min_val=0.01,
             max_val=1000.0,
             step=1,
@@ -144,14 +156,14 @@ class DeviceControlMainWindow(QMainWindow):
 
         # Waypoint controls
         main_layout.addSpacing(25)
-        self.waypoint_info_label = self.create_label("Path Control")
+        self.waypoint_info_label = self.create_label(tr('path_control_label'))
         main_layout.addWidget(self.waypoint_info_label)
 
         wp_layout = QGridLayout()
-        wp_layout.addWidget(self.create_button("Add Waypoint", self.add_waypoint, font), 0, 0)
-        wp_layout.addWidget(self.create_button("Clear Waypoints", self.clear_waypoints, font), 0, 1)
-        wp_layout.addWidget(self.create_button("Run Path", self.run_path, font), 1, 0)
-        wp_layout.addWidget(self.create_button("Save Path", self.save_path, font), 1, 1)
+        wp_layout.addWidget(self.create_button(tr('add_waypoint_btn'), self.add_waypoint, font), 0, 0)
+        wp_layout.addWidget(self.create_button(tr('clear_waypoints_btn'), self.clear_waypoints, font), 0, 1)
+        wp_layout.addWidget(self.create_button(tr('run_path_btn'), self.run_path, font), 1, 0)
+        wp_layout.addWidget(self.create_button(tr('save_path_btn'), self.save_path, font), 1, 1)
         main_layout.addLayout(wp_layout)
 
         # self.waypoint_info_label = self.create_label("", font_size=10)
@@ -160,7 +172,7 @@ class DeviceControlMainWindow(QMainWindow):
 
         # GCode controls
         main_layout.addSpacing(25)
-        main_layout.addWidget(self.create_label("Advanced"))
+        main_layout.addWidget(self.create_label(tr('advanced_label')))
 
         #        main_layout.addSpacing(10)
         advanced_frame = QWidget()
@@ -175,19 +187,19 @@ class DeviceControlMainWindow(QMainWindow):
         layout.addItem(QSpacerItem(0, 10, QSizePolicy.Policy.Minimum, QSizePolicy.Policy.Fixed), 1, 0, 1, 2)
         self.realtime_control_widget.stop_control_signal.connect(self.on_stop_realtime_control)
 
-        self.run_gcode_button = self.create_button("Run GCode", self.run_gcode_from_file, font)
+        self.run_gcode_button = self.create_button(tr('run_gcode_btn'), self.run_gcode_from_file, font)
         self.run_gcode_button.setCheckable(True)
         layout.addWidget(self.run_gcode_button, 2, 0, 1, 2)
         layout.addItem(QSpacerItem(0, 10, QSizePolicy.Policy.Minimum, QSizePolicy.Policy.Fixed), 3, 0, 1, 2)
 
-        layout.addWidget(self.create_button("3-Point Alignment", self.run_3point_alignment, font), 4, 0)
-        layout.addWidget(self.create_button("Set Origin", lambda: self.set_origin(), font), 4, 1)
-        layout.addWidget(self.create_button("Set Tracking Point", self.set_tracking_point, font), 5, 0)
-        layout.addWidget(self.create_button("Clear", self.clear_draw_buffer, font), 5, 1)
-        layout.addWidget(self.create_button("Load Transform", self.load_transform, font), 6, 0)
-        layout.addWidget(self.create_button("Save Transform", self.save_transform, font), 6, 1)
-        layout.addWidget(self.create_button("Fiber Alignment", self.run_fiber_alignment, font), 7, 0)
-        layout.addWidget(self.create_button("Home", self.home, font), 7, 1)
+        layout.addWidget(self.create_button(tr('align_3point_btn'), self.run_3point_alignment, font), 4, 0)
+        layout.addWidget(self.create_button(tr('set_origin_btn'), lambda: self.set_origin(), font), 4, 1)
+        layout.addWidget(self.create_button(tr('set_tracking_point_btn'), self.set_tracking_point, font), 5, 0)
+        layout.addWidget(self.create_button(tr('clear_btn'), self.clear_draw_buffer, font), 5, 1)
+        layout.addWidget(self.create_button(tr('load_transform_btn'), self.load_transform, font), 6, 0)
+        layout.addWidget(self.create_button(tr('save_transform_btn'), self.save_transform, font), 6, 1)
+        layout.addWidget(self.create_button(tr('fiber_alignment_btn'), self.run_fiber_alignment, font), 7, 0)
+        layout.addWidget(self.create_button(tr('home_btn'), self.home, font), 7, 1)
         main_layout.addWidget(advanced_frame)
 
         # vertical stretch
@@ -207,18 +219,18 @@ class DeviceControlMainWindow(QMainWindow):
     def setup_movement_grid(self):
         font = QFont("Noto Sans", 12)
         grid = QGridLayout()
-        grid.addWidget(self.create_button("Y-", lambda: self.move_axis(1, -1), font), 0, 1)
-        grid.addWidget(self.create_button("Z+", lambda: self.move_axis(2, +1), font), 0, 3)
-        grid.addWidget(self.create_button("X-", lambda: self.move_axis(0, -1), font), 1, 0)
+        grid.addWidget(self.create_button(tr('axis_y_minus'), lambda: self.move_axis(1, -1), font), 0, 1)
+        grid.addWidget(self.create_button(tr('axis_z_plus'), lambda: self.move_axis(2, +1), font), 0, 3)
+        grid.addWidget(self.create_button(tr('axis_x_minus'), lambda: self.move_axis(0, -1), font), 1, 0)
 
         center_label = QLabel("•")
         center_label.setFont(QFont("Arial", 30))
         center_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
         grid.addWidget(center_label, 1, 1)
 
-        grid.addWidget(self.create_button("X+", lambda: self.move_axis(0, +1), font), 1, 2)
-        grid.addWidget(self.create_button("Y+", lambda: self.move_axis(1, +1), font), 2, 1)
-        grid.addWidget(self.create_button("Z-", lambda: self.move_axis(2, -1), font), 2, 3)
+        grid.addWidget(self.create_button(tr('axis_x_plus'), lambda: self.move_axis(0, +1), font), 1, 2)
+        grid.addWidget(self.create_button(tr('axis_y_plus'), lambda: self.move_axis(1, +1), font), 2, 1)
+        grid.addWidget(self.create_button(tr('axis_z_minus'), lambda: self.move_axis(2, -1), font), 2, 3)
         self.control_layout.addLayout(grid)
 
     def setup_step_size_ui(self):
@@ -538,6 +550,10 @@ class DeviceControlMainWindow(QMainWindow):
         lang_action = tools_menu.addAction(tr('action_language_settings'))
         lang_action.triggered.connect(self.open_language_settings)
         
+        # 串口监视器动作
+        serial_action = tools_menu.addAction(tr('action_serial_monitor'))
+        serial_action.triggered.connect(self.show_serial_monitor)
+        
         # 关于菜单
         help_menu = menubar.addMenu(tr('menu_help'))
         about_action = help_menu.addAction(tr('action_about'))
@@ -549,6 +565,17 @@ class DeviceControlMainWindow(QMainWindow):
         if dialog.exec() == QDialog.DialogCode.Accepted:
             # 语言已更改，刷新界面
             self.update_ui_language()
+            # 保存语言设置
+            self.config.language = self.translator.current_language
+            save_config()
+    
+    def show_serial_monitor(self):
+        """显示串口监视器"""
+        if not hasattr(self, 'serial_monitor') or self.serial_monitor is None:
+            self.serial_monitor = SerialMonitorWidget(self)
+        self.serial_monitor.show()
+        self.serial_monitor.raise_()
+        self.serial_monitor.activateWindow()
     
     def update_ui_language(self):
         """更新界面语言"""
@@ -576,6 +603,26 @@ class DeviceControlMainWindow(QMainWindow):
             f"<p>{tr('about_description')}</p>"
             f"<p>{tr('about_license')}</p>"
         )
+    
+    def closeEvent(self, event):
+        """关闭窗口时保存配置"""
+        # 保存窗口大小和位置
+        self.config.update_window_config(
+            self.width(),
+            self.height(),
+            self.x(),
+            self.y()
+        )
+        
+        # 保存当前设置
+        save_config()
+        print("[Config] 配置已自动保存")
+        
+        # 停止串口监控
+        if hasattr(self, 'serial_monitor') and self.serial_monitor:
+            self.serial_monitor.stop_monitoring()
+        
+        event.accept()
     
     # ==================== 键盘事件 ====================
     
