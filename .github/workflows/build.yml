@@ -1,4 +1,4 @@
-name: 多平台打包
+name: Windows x64 构建
 
 on:
   push:
@@ -45,6 +45,7 @@ jobs:
           echo "tag=$TAG" >> "$GITHUB_OUTPUT"
           echo "version=$VERSION" >> "$GITHUB_OUTPUT"
           echo "✅ 发布版本：$VERSION"
+  
   build-windows:
     name: 打包 Windows (x64)
     runs-on: windows-latest
@@ -87,352 +88,11 @@ jobs:
             exit 1
           }
         
-      - name: 上传 Windows 构建产物
+      - name: 上传 Windows x64 构建产物
         uses: actions/upload-artifact@v5
         with:
           name: OpenMicroManipulator-Windows-x64
           path: source\dist\OpenMicroManipulator.exe
-          if-no-files-found: ignore
-  
-  build-windows-x86:
-    name: 打包 Windows (x86)
-    runs-on: windows-latest
-      
-    steps:
-      - name: 检出代码
-        uses: actions/checkout@v5
-        
-      - name: 安装 Python (x86)
-        uses: actions/setup-python@v6
-        with:
-          python-version: '3.11'
-          architecture: 'x86'
-          cache: 'pip'
-        
-      - name: 安装依赖
-        run: |
-          python -m pip install --upgrade pip
-          pip install pyinstaller
-          if (Test-Path source\requirements.txt) {
-            pip install -r source\requirements.txt
-          } else {
-            Write-Host "requirements.txt not found, skipping..."
-          }
-        
-      - name: 打包 EXE
-        run: |
-          cd source
-          echo "=== 开始 PyInstaller 打包 ==="
-          python --version
-          pyinstaller --version
-          echo "=== 执行 PyInstaller ==="
-          pyinstaller --clean build.spec
-          echo "=== 检查打包结果 ==="
-          if (Test-Path "dist\OpenMicroManipulator.exe") {
-            $filesize = (Get-Item "dist\OpenMicroManipulator.exe").Length / 1MB
-            Write-Host "✅ EXE 打包成功，文件大小：{0:N2} MB" -f $filesize
-          } else {
-            Write-Host "❌ EXE 打包失败"
-            Write-Host "当前目录内容:"
-            Get-ChildItem dist | Format-Table
-            exit 1
-          }
-        
-      - name: 上传 Windows x86 构建产物
-        uses: actions/upload-artifact@v5
-        with:
-          name: OpenMicroManipulator-Windows-x86
-          path: source\dist\OpenMicroManipulator.exe
-          if-no-files-found: ignore
-    
-  build-windows-arm:
-    name: 打包 Windows (ARM64)
-    runs-on: windows-latest
-      
-    steps:
-      - name: 检出代码
-        uses: actions/checkout@v5
-        
-      - name: 安装 Python (ARM64)
-        uses: actions/setup-python@v6
-        with:
-          python-version: '3.11'  # Windows ARM64 只有 3.11
-          architecture: 'ARM64'
-          cache: 'pip'
-        
-      - name: 安装依赖
-        run: |
-          python -m pip install --upgrade pip
-          # 并行安装主要依赖加速
-          pip install pyinstaller numpy
-          if (Test-Path source\requirements.txt) {
-            # 使用官方源直接安装（GitHub Actions 无需国内镜像）
-            pip install -r source\requirements.txt
-          }
-        
-      - name: 打包 EXE
-        run: |
-          cd source
-          echo "=== 开始 PyInstaller 打包 ==="
-          python --version
-          pyinstaller --version
-          echo "=== 执行 PyInstaller ==="
-          pyinstaller --clean build.spec
-          echo "=== 检查打包结果 ==="
-          if (Test-Path "dist\OpenMicroManipulator.exe") {
-            $filesize = (Get-Item "dist\OpenMicroManipulator.exe").Length / 1MB
-            Write-Host "✅ EXE 打包成功，文件大小：{0:N2} MB" -f $filesize
-          } else {
-            Write-Host "❌ EXE 打包失败"
-            Write-Host "当前目录内容:"
-            Get-ChildItem dist | Format-Table
-            exit 1
-          }
-        
-      - name: 上传 Windows ARM64 构建产物
-        uses: actions/upload-artifact@v5
-        with:
-          name: OpenMicroManipulator-Windows-ARM64
-          path: source\dist\OpenMicroManipulator.exe
-          if-no-files-found: ignore
-  
-  build-linux:
-    name: 打包 Linux (x64)
-    runs-on: ubuntu-latest
-      
-    steps:
-      - name: 检出代码
-        uses: actions/checkout@v5
-        
-      - name: 安装 Python
-        uses: actions/setup-python@v6
-        with:
-          python-version: '3.12'
-          architecture: 'x64'
-          cache: 'pip'
-      
-      - name: 安装依赖
-        run: |
-          python -m pip install --upgrade pip
-          pip install pyinstaller
-          if [ -f source/requirements.txt ]; then
-            pip install -r source/requirements.txt
-          fi
-      
-      - name: 打包 AppImage
-        run: |
-          cd source
-          echo "=== 开始 PyInstaller 打包 ==="
-          python --version
-          pyinstaller --version
-          echo "=== 执行 PyInstaller ==="
-          pyinstaller --clean build.spec
-          echo "=== 检查打包结果 ==="
-          ls -la dist/
-          if [ -f "dist/OpenMicroManipulator" ]; then
-            filesize=$(du -h "dist/OpenMicroManipulator" | cut -f1)
-            echo "✅ Linux 可执行文件打包成功，文件大小：$filesize"
-          else
-            echo "❌ Linux 可执行文件打包失败"
-            exit 1
-          fi
-      
-      - name: 创建压缩包
-        run: |
-          cd source/dist
-          tar -czvf OpenMicroManipulator-Linux-x64.tar.gz OpenMicroManipulator
-      
-      - name: 上传 Linux x64 构建产物
-        uses: actions/upload-artifact@v5
-        with:
-          name: OpenMicroManipulator-Linux-x64
-          path: source/dist/OpenMicroManipulator-Linux-x64.tar.gz
-          if-no-files-found: ignore
-  
-  build-linux-arm64:
-    name: 打包 Linux (ARM64)
-    runs-on: ubuntu-latest
-      
-    steps:
-      - name: 检出代码
-        uses: actions/checkout@v5
-        
-      - name: 安装 Python (ARM64)
-        uses: actions/setup-python@v6
-        with:
-          python-version: '3.12'
-          architecture: 'arm64'
-          cache: 'pip'
-        
-      - name: 安装依赖
-        run: |
-          echo "=== 开始安装依赖 ==="
-          python -m pip install --upgrade pip
-          # 并行安装主要依赖加速
-          pip install pyinstaller numpy
-          if [ -f source/requirements.txt ]; then
-            pip install -r source/requirements.txt
-          fi
-        
-      - name: 打包 AppImage
-        run: |
-          cd source
-          echo "=== 开始 PyInstaller 打包 ==="
-          python --version
-          pyinstaller --version
-          echo "=== 执行 PyInstaller ==="
-          pyinstaller --clean build.spec
-          echo "=== 检查打包结果 ==="
-          ls -la dist/
-          if [ -f "dist/OpenMicroManipulator" ]; then
-            filesize=$(du -h "dist/OpenMicroManipulator" | cut -f1)
-            echo "✅ Linux ARM64 可执行文件打包成功，文件大小：$filesize"
-          else
-            echo "❌ Linux ARM64 可执行文件打包失败"
-            exit 1
-          fi
-        
-      - name: 创建压缩包
-        run: |
-          cd source/dist
-          tar -czvf OpenMicroManipulator-Linux-ARM64.tar.gz OpenMicroManipulator
-        
-      - name: 上传 Linux ARM64 构建产物
-        uses: actions/upload-artifact@v5
-        with:
-          name: OpenMicroManipulator-Linux-ARM64
-          path: source/dist/OpenMicroManipulator-Linux-ARM64.tar.gz
-          if-no-files-found: ignore
-  
-  build-macos:
-    name: 打包 macOS (Intel)
-    runs-on: macos-latest
-      
-    steps:
-      - name: 检出代码
-        uses: actions/checkout@v5
-        
-      - name: 安装 Python
-        uses: actions/setup-python@v6
-        with:
-          python-version: '3.12'
-          architecture: 'x64'
-          cache: 'pip'
-      
-      - name: 安装系统依赖
-        run: |
-          brew install gettext || true
-      
-      - name: 安装依赖
-        run: |
-          python -m pip install --upgrade pip
-          pip install pyinstaller
-          if [ -f source/requirements.txt ]; then
-            pip install -r source/requirements.txt
-          fi
-      
-      - name: 打包 App
-        run: |
-          cd source
-          echo "=== 开始 PyInstaller 打包 ==="
-          python3 --version
-          pyinstaller --version
-          echo "=== 执行 PyInstaller ==="
-          pyinstaller --clean build.spec
-          echo "=== 检查打包结果 ==="
-          ls -la dist/
-          if [ -d "dist/OpenMicroManipulator.app" ]; then
-            echo "✅ App 打包成功"
-          else
-            echo "❌ App 打包失败"
-            exit 1
-          fi
-      
-      - name: 创建 DMG
-        run: |
-          cd source/dist
-          echo "=== 开始创建 DMG ==="
-          ls -la
-          if [ ! -d "OpenMicroManipulator.app" ]; then
-            echo "❌ OpenMicroManipulator.app 不存在"
-            exit 1
-          fi
-          echo "✅ OpenMicroManipulator.app 存在"
-          hdiutil create -format UDZO -srcfolder OpenMicroManipulator.app -volname OpenMicroManipulator OpenMicroManipulator-macOS-Intel.dmg
-          echo "✅ DMG 创建成功"
-          ls -la *.dmg
-      
-      - name: 上传 macOS Intel 构建产物
-        uses: actions/upload-artifact@v5
-        with:
-          name: OpenMicroManipulator-macOS-Intel
-          path: source/dist/OpenMicroManipulator-macOS-Intel.dmg
-          if-no-files-found: ignore
-  
-  build-macos-arm:
-    name: 打包 macOS (ARM/M1)
-    runs-on: macos-latest
-      
-    steps:
-      - name: 检出代码
-        uses: actions/checkout@v5
-        
-      - name: 安装 Python (ARM64)
-        uses: actions/setup-python@v6
-        with:
-          python-version: '3.12'
-          architecture: 'arm64'
-          cache: 'pip'
-      
-      - name: 安装系统依赖
-        run: |
-          brew install gettext || true
-      
-      - name: 安装依赖
-        run: |
-          python3 -m pip install --upgrade pip
-          python3 -m pip install pyinstaller
-          if [ -f source/requirements.txt ]; then
-            python3 -m pip install -r source/requirements.txt
-          fi
-      
-      - name: 打包 App
-        run: |
-          cd source
-          echo "=== 开始 PyInstaller 打包 ==="
-          python3 --version
-          pyinstaller --version
-          echo "=== 执行 PyInstaller ==="
-          python3 -m PyInstaller --clean build.spec
-          echo "=== 检查打包结果 ==="
-          ls -la dist/
-          if [ -d "dist/OpenMicroManipulator.app" ]; then
-            echo "✅ App 打包成功"
-          else
-            echo "❌ App 打包失败"
-            exit 1
-          fi
-      
-      - name: 创建 DMG
-        run: |
-          cd source/dist
-          echo "=== 开始创建 DMG ==="
-          ls -la
-          if [ ! -d "OpenMicroManipulator.app" ]; then
-            echo "❌ OpenMicroManipulator.app 不存在"
-            exit 1
-          fi
-          echo "✅ OpenMicroManipulator.app 存在"
-          hdiutil create -format UDZO -srcfolder OpenMicroManipulator.app -volname OpenMicroManipulator OpenMicroManipulator-macOS-ARM.dmg
-          echo "✅ DMG 创建成功"
-          ls -la *.dmg
-          hdiutil create -format UDZO -srcfolder OpenMicroManipulator.app -volname OpenMicroManipulator OpenMicroManipulator-macOS-ARM.dmg
-      
-      - name: 上传 macOS ARM 构建产物
-        uses: actions/upload-artifact@v5
-        with:
-          name: OpenMicroManipulator-macOS-ARM
-          path: source/dist/OpenMicroManipulator-macOS-ARM.dmg
           if-no-files-found: ignore
   
   create-release:
@@ -441,12 +101,6 @@ jobs:
     needs:
       - validate-tag
       - build-windows
-      - build-windows-x86
-      - build-windows-arm
-      - build-linux
-      - build-linux-arm64
-      - build-macos
-      - build-macos-arm
     if: startsWith(github.ref, 'refs/tags/')
     
     steps:
@@ -467,16 +121,10 @@ jobs:
           body: |
             ## 发布 OpenMicroManipulator v${{ needs.validate-tag.outputs.version }}
             
-            自动构建的所有平台构建产物。
+            Windows x64 自动构建产物。
             
             ### 📦 下载
             - **Windows x64**: OpenMicroManipulator-Windows-x64.exe
-            - **Windows x86**: OpenMicroManipulator-Windows-x86.exe
-            - **Windows ARM64**: OpenMicroManipulator-Windows-ARM64.exe
-            - **Linux x64**: OpenMicroManipulator-Linux-x64.tar.gz
-            - **Linux ARM64**: OpenMicroManipulator-Linux-ARM64.tar.gz
-            - **macOS Intel**: OpenMicroManipulator-macOS-Intel.dmg
-            - **macOS ARM/M1**: OpenMicroManipulator-macOS-ARM.dmg
             
             ### 🔧 安装
             下载对应平台的文件并解压/运行。
@@ -496,12 +144,6 @@ jobs:
     runs-on: ubuntu-latest
     needs:
       - build-windows
-      - build-windows-x86
-      - build-windows-arm
-      - build-linux
-      - build-linux-arm64
-      - build-macos
-      - build-macos-arm
     if: always()
     
     steps:
@@ -511,12 +153,6 @@ jobs:
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "### 平台状态" >> $GITHUB_STEP_SUMMARY
           echo "- Windows x64: ${{ needs.build-windows.result }}" >> $GITHUB_STEP_SUMMARY
-          echo "- Windows x86: ${{ needs.build-windows-x86.result }}" >> $GITHUB_STEP_SUMMARY
-          echo "- Windows ARM64: ${{ needs.build-windows-arm.result }}" >> $GITHUB_STEP_SUMMARY
-          echo "- Linux x64: ${{ needs.build-linux.result }}" >> $GITHUB_STEP_SUMMARY
-          echo "- Linux ARM64: ${{ needs.build-linux-arm64.result }}" >> $GITHUB_STEP_SUMMARY
-          echo "- macOS Intel: ${{ needs.build-macos.result }}" >> $GITHUB_STEP_SUMMARY
-          echo "- macOS ARM/M1: ${{ needs.build-macos-arm.result }}" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
           
           if [ "${{ github.event_name }}" == "workflow_dispatch" ]; then
