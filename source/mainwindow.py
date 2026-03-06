@@ -33,7 +33,7 @@ np_lazy = LazyLoader('numpy')  # NumPy - 约 50ms
 
 from PySide6.QtWidgets import (
     QApplication, QWidget, QPushButton, QVBoxLayout, QHBoxLayout, QLabel, QGridLayout, QMessageBox, QButtonGroup,
-    QDoubleSpinBox, QFileDialog, QMainWindow, QFrame, QSpacerItem, QSizePolicy
+    QDoubleSpinBox, QFileDialog, QMainWindow, QFrame, QSpacerItem, QSizePolicy, QDialog
 )
 from PySide6.QtCore import Qt, QMargins
 from PySide6.QtGui import QFont
