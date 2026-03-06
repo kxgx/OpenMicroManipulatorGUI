@@ -42,6 +42,21 @@ TRANSLATIONS = {
         'axis_z_plus': 'Z+',
         'axis_z_minus': 'Z-',
         
+        # 路径控制
+        'add_waypoint_btn': '添加航点',
+        'clear_waypoints_btn': '清空航点',
+        'run_path_btn': '运行路径',
+        'save_path_btn': '保存路径',
+        
+        # 高级功能
+        'run_gcode_btn': '运行 GCode',
+        'align_3point_btn': '三点校准',
+        'set_origin_btn': '设置原点',
+        'set_tracking_point_btn': '设置跟踪点',
+        'load_transform_btn': '加载变换',
+        'save_transform_btn': '保存变换',
+        'fiber_alignment_btn': '光纤对准',
+        
         # 速度控制
         'speed_group': '速度控制',
         'speed_label': '速度:',
@@ -177,6 +192,21 @@ TRANSLATIONS = {
         'axis_y_minus': 'Y-',
         'axis_z_plus': 'Z+',
         'axis_z_minus': 'Z-',
+        
+        # Path Control
+        'add_waypoint_btn': 'Add Waypoint',
+        'clear_waypoints_btn': 'Clear Waypoints',
+        'run_path_btn': 'Run Path',
+        'save_path_btn': 'Save Path',
+        
+        # Advanced Features
+        'run_gcode_btn': 'Run GCode',
+        'align_3point_btn': '3-Point Alignment',
+        'set_origin_btn': 'Set Origin',
+        'set_tracking_point_btn': 'Set Tracking Point',
+        'load_transform_btn': 'Load Transform',
+        'save_transform_btn': 'Save Transform',
+        'fiber_alignment_btn': 'Fiber Alignment',
         
         # Speed Control
         'speed_group': 'Speed Control',
