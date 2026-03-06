@@ -235,7 +235,7 @@ class DeviceControlMainWindow(QMainWindow):
 
     def setup_step_size_ui(self):
         self.control_layout.addSpacing(20)
-        self.control_layout.addWidget(self.create_label("Step Size [µm]"))
+        self.control_layout.addWidget(self.create_label(tr('step_size_label')))
         step_layout = QHBoxLayout()
         self.step_button_group = QButtonGroup(self)
         for i, val in enumerate(self.step_sizes):
@@ -344,12 +344,12 @@ class DeviceControlMainWindow(QMainWindow):
 
     def save_path(self):
         if len(self.waypoints) <= 0:
-            QMessageBox.critical(self, "Save Error", f"Waypoint list is empty")
+            QMessageBox.critical(self, tr('save_error_title'), tr('waypoint_list_empty'))
             return
 
         path, _ = QFileDialog.getSaveFileName(
-            self, "Save Path to G-code File", "",
-            "G-code Files (*.g *.gcode);;Text Files (*.txt);;All Files (*.*)"
+            self, tr('save_path_title'), "",
+            f"{tr('gcode_files_filter')};;{tr('text_files_filter')};;{tr('all_files_filter')}"
         )
 
         if not path:
@@ -371,7 +371,7 @@ class DeviceControlMainWindow(QMainWindow):
                 f.write("\n; End of file\n")
 
         except Exception as e:
-            QMessageBox.critical(self, "Save Error", f"Failed to save G-code file:\n{e}")
+            QMessageBox.critical(self, tr('save_error_title'), f"{tr('save_gcode_failed')}\n{e}")
 
     def set_origin(self):
         self.current_pos[:] = self.oms.read_current_position(True)
@@ -388,7 +388,9 @@ class DeviceControlMainWindow(QMainWindow):
         self.update_waypoint_info()
 
     def update_waypoint_info(self):
-        self.waypoint_info_label.setText(f"Path Control  [ {len(self.waypoints)} Waypoints ]")
+        waypoints_count = len(self.waypoints)
+        label_text = f"{tr('path_control_label')}  [ {waypoints_count} {tr('waypoints_unit')} ]"
+        self.waypoint_info_label.setText(label_text)
 
     def set_step_size(self, index):
         self.step_size_idx = index
@@ -446,7 +448,7 @@ class DeviceControlMainWindow(QMainWindow):
             try:
                 gcode = open(path, 'r').read()
             except Exception as e:
-                QMessageBox.critical(self, "Error", f"Failed to open file:\n{e}")
+                QMessageBox.critical(self, tr('error_title'), f"{tr('open_file_failed')}\n{e}")
                 return
 
             self.gcode_runner = GCodeRunner(gcode, self.oms, max_feedrate=0.5)
@@ -468,7 +470,7 @@ class DeviceControlMainWindow(QMainWindow):
 
     def run_3point_alignment(self):
         if len(self.waypoints) != 3:
-            QMessageBox.critical(self, "Error", "Exactly 3 Waypoints need to be recorded for this function")
+            QMessageBox.critical(self, tr('error_title'), tr('need_3_waypoints'))
             return
 
         old_workspace_transform = self.oms.get_workspace_transform()
@@ -503,7 +505,7 @@ class DeviceControlMainWindow(QMainWindow):
 
         # Step 5: set coordinate system
         self.oms.set_workspace_transform(T @ old_workspace_transform)
-        QMessageBox.information(self, "Alignment Complete", "3-point alignment complete.")
+        QMessageBox.information(self, tr('alignment_complete_title'), tr('alignment_complete_msg'))
 
         self.oms.move_to(0, 0, 0, self.feedrates[self.step_size_idx])
         self.current_pos = [0, 0, 0]
@@ -519,7 +521,7 @@ class DeviceControlMainWindow(QMainWindow):
 
     def save_transform(self, pressed=True, ask=True):
         if ask:
-            confirmed = QMessageBox.question(None, "Save Transform", "Are you sure?",
+            confirmed = QMessageBox.question(None, tr('save_transform_title'), tr('confirm_save_transform'),
                                              QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No,
                                              QMessageBox.StandardButton.No) == QMessageBox.StandardButton.Yes
             if not confirmed: return

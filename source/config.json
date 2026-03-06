@@ -1,0 +1,23 @@
+{
+  "language": "zh_CN",
+  "window": {
+    "width": 1129,
+    "height": 832,
+    "x": 805,
+    "y": 435
+  },
+  "serial": {
+    "port": "COM6",
+    "baudrate": 115200,
+    "timeout": 1.0
+  },
+  "camera": {
+    "index": 0,
+    "width": 1920,
+    "height": 1080
+  },
+  "stage": {
+    "step_size_idx": 1,
+    "acceleration": 30.0
+  }
+}

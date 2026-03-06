@@ -96,6 +96,29 @@ TRANSLATIONS = {
         'stop_monitoring': '停止监控',
         'clear_btn': '清空',
         'auto_scroll': '自动滚动',
+        
+        # 界面标签
+        'step_size_label': '步距 [µm]',
+        'acceleration_label': '加速度:',
+        'path_control_label': '路径控制',
+        'waypoints_unit': '航点',
+        'advanced_label': '高级',
+        
+        # 对话框和消息
+        'save_error_title': '保存错误',
+        'save_path_title': '保存路径为 GCode 文件',
+        'waypoint_list_empty': '航点列表为空',
+        'gcode_files_filter': 'GCode 文件 (*.g *.gcode)',
+        'text_files_filter': '文本文件 (*.txt)',
+        'all_files_filter': '所有文件 (*)',
+        'save_gcode_failed': '保存 GCode 文件失败',
+        'error_title': '错误',
+        'open_file_failed': '打开文件失败',
+        'need_3_waypoints': '需要记录恰好 3 个航点才能使用此功能',
+        'alignment_complete_title': '对准完成',
+        'alignment_complete_msg': '三点校准完成。',
+        'save_transform_title': '保存变换',
+        'confirm_save_transform': '确定要保存吗？',
     },
     
     'en_US': {
@@ -190,6 +213,29 @@ TRANSLATIONS = {
         'stop_monitoring': 'Stop Monitoring',
         'clear_btn': 'Clear',
         'auto_scroll': 'Auto Scroll',
+        
+        # Interface Labels
+        'step_size_label': 'Step Size [µm]',
+        'acceleration_label': 'Acceleration:',
+        'path_control_label': 'Path Control',
+        'waypoints_unit': 'Waypoints',
+        'advanced_label': 'Advanced',
+        
+        # Dialogs and Messages
+        'save_error_title': 'Save Error',
+        'save_path_title': 'Save Path to G-code File',
+        'waypoint_list_empty': 'Waypoint list is empty',
+        'gcode_files_filter': 'G-code Files (*.g *.gcode)',
+        'text_files_filter': 'Text Files (*.txt)',
+        'all_files_filter': 'All Files (*)',
+        'save_gcode_failed': 'Failed to save G-code file',
+        'error_title': 'Error',
+        'open_file_failed': 'Failed to open file',
+        'need_3_waypoints': 'Exactly 3 Waypoints need to be recorded for this function',
+        'alignment_complete_title': 'Alignment Complete',
+        'alignment_complete_msg': '3-point alignment complete.',
+        'save_transform_title': 'Save Transform',
+        'confirm_save_transform': 'Are you sure?',
     },
 }
 
