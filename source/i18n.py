@@ -103,6 +103,7 @@ TRANSLATIONS = {
         'menu_tools': '工具 (&T)',
         'menu_help': '帮助 (&H)',
         'action_language_settings': '语言设置...',
+        'action_log_monitor': '日志监视器',
         'action_about': '关于',
         'action_serial_monitor': '串口监视器',
         
@@ -121,6 +122,9 @@ TRANSLATIONS = {
         'auto_scroll': '自动滚动',
         'monitoring_port': '监控串口:',
         'not_connected': '未连接',
+        
+        # 日志监视器
+        'log_monitor_title': '日志监视器',
         
         # 界面标签
         'step_size_label': '步距 [µm]',
@@ -256,6 +260,7 @@ TRANSLATIONS = {
         'menu_tools': 'Tools(&T)',
         'menu_help': 'Help(&H)',
         'action_language_settings': 'Language Settings...',
+        'action_log_monitor': 'Log Monitor',
         'action_about': 'About',
         'action_serial_monitor': 'Serial Monitor',
         
@@ -274,6 +279,9 @@ TRANSLATIONS = {
         'auto_scroll': 'Auto Scroll',
         'monitoring_port': 'Monitoring Port:',
         'not_connected': 'Not Connected',
+        
+        # Log Monitor
+        'log_monitor_title': 'Log Monitor',
         
         # Interface Labels
         'step_size_label': 'Step Size [µm]',

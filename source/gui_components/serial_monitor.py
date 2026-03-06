@@ -1,42 +1,40 @@
 """
-实时串口监视器组件
-用于显示串口通信数据
+日志监视器组件
+用于显示主程序详细日志（包括串口通信信息）
 """
 
 from PySide6.QtWidgets import (QWidget, QVBoxLayout, QTextEdit, QLabel, 
-                                QPushButton, QHBoxLayout, QCheckBox, QComboBox)
-from PySide6.QtCore import QTimer, Signal
+                                QPushButton, QHBoxLayout, QCheckBox, QComboBox,
+                                QSplitter, QFrame)
+from PySide6.QtCore import QTimer, Signal, Qt
 from PySide6.QtGui import QFont
-import serial
 import time
 from i18n import tr
 
 
-class SerialMonitorWidget(QWidget):
-    """串口监视器独立窗口组件 - 监控主程序已连接的串口"""
+class LogMonitorWidget(QWidget):
+    """日志监视器独立窗口组件 - 显示主程序详细日志"""
     
     # 信号
-    data_received = Signal(str)
-    data_sent = Signal(str)
+    log_cleared = Signal()
     
-    def __init__(self, serial_port=None, parent=None):
+    def __init__(self, parent=None):
         """
-        初始化串口监视器
+        初始化日志监视器
         
         Args:
-            serial_port: 已经打开的串口对象（从主程序传入）
             parent: 父窗口
         """
         super().__init__(parent)
-        self.serial_port = serial_port  # 使用传入的串口对象
-        self.monitor_timer = QTimer()
-        self.monitor_timer.timeout.connect(self.check_serial_data)
-        self.is_monitoring = False
         
         # 设置为独立窗口
-        self.setWindowTitle(tr('serial_monitor_title'))
-        self.setMinimumSize(600, 400)
-        self.resize(800, 600)
+        self.setWindowTitle(tr('log_monitor_title'))
+        self.setMinimumSize(700, 500)
+        self.resize(900, 700)
+        
+        # 日志存储
+        self.log_entries = []
+        self.max_log_entries = 1000  # 最多保存 1000 条日志
         
         self.init_ui()
     
@@ -46,29 +44,51 @@ class SerialMonitorWidget(QWidget):
         layout.setContentsMargins(5, 5, 5, 5)
         
         # 标题
-        title_label = QLabel(tr('serial_monitor_title'))
+        title_label = QLabel(tr('log_monitor_title'))
         title_label.setFont(QFont("Arial", 12, QFont.Weight.Bold))
         layout.addWidget(title_label)
         
-        # 串口信息显示（只读）
-        info_layout = QHBoxLayout()
-        info_label = QLabel(tr('monitoring_port'))
-        self.port_info_label = QLabel(tr('not_connected'))
-        self.port_info_label.setStyleSheet("color: #ffaa00; font-weight: bold;")
+        # 日志级别过滤
+        filter_layout = QHBoxLayout()
+        filter_label = QLabel("日志级别过滤:")
         
-        info_layout.addWidget(info_label)
-        info_layout.addWidget(self.port_info_label)
-        info_layout.addStretch()
-        layout.addLayout(info_layout)
+        self.filter_debug = QCheckBox("调试")
+        self.filter_debug.setChecked(True)
+        self.filter_debug.stateChanged.connect(self.apply_filter)
         
-        # 数据显示区
+        self.filter_info = QCheckBox("信息")
+        self.filter_info.setChecked(True)
+        self.filter_info.stateChanged.connect(self.apply_filter)
+        
+        self.filter_warning = QCheckBox("警告")
+        self.filter_warning.setChecked(True)
+        self.filter_warning.stateChanged.connect(self.apply_filter)
+        
+        self.filter_error = QCheckBox("错误")
+        self.filter_error.setChecked(True)
+        self.filter_error.stateChanged.connect(self.apply_filter)
+        
+        self.filter_comm = QCheckBox("通信")
+        self.filter_comm.setChecked(True)
+        self.filter_comm.stateChanged.connect(self.apply_filter)
+        
+        filter_layout.addWidget(filter_label)
+        filter_layout.addWidget(self.filter_debug)
+        filter_layout.addWidget(self.filter_info)
+        filter_layout.addWidget(self.filter_warning)
+        filter_layout.addWidget(self.filter_error)
+        filter_layout.addWidget(self.filter_comm)
+        filter_layout.addStretch()
+        layout.addLayout(filter_layout)
+        
+        # 日志显示区
         self.display = QTextEdit()
         self.display.setReadOnly(True)
         self.display.setFont(QFont("Consolas", 9))
         self.display.setStyleSheet("""
             QTextEdit {
                 background-color: #1e1e1e;
-                color: #00ff00;
+                color: #d4d4d4;
                 border: 1px solid #3c3c3c;
                 font-family: 'Consolas', 'Courier New', monospace;
             }
@@ -84,114 +104,128 @@ class SerialMonitorWidget(QWidget):
         self.clear_btn = QPushButton(tr('clear_btn'))
         self.clear_btn.clicked.connect(self.clear_display)
         
-        self.start_btn = QPushButton(tr('start_monitoring'))
-        self.start_btn.clicked.connect(self.toggle_monitoring)
-        self.start_btn.setCheckable(True)
+        self.export_btn = QPushButton("导出日志")
+        self.export_btn.clicked.connect(self.export_logs)
         
         control_layout.addWidget(self.auto_scroll_check)
         control_layout.addStretch()
+        control_layout.addWidget(self.export_btn)
         control_layout.addWidget(self.clear_btn)
-        control_layout.addWidget(self.start_btn)
         layout.addLayout(control_layout)
         
         self.setLayout(layout)
     
-    def set_serial_port(self, serial_port):
+    def add_log_entry(self, timestamp, level, message, log_type='info'):
         """
-        设置要监控的串口对象
+        添加日志条目
         
         Args:
-            serial_port: 已打开的串口对象
+            timestamp: 时间戳
+            level: 日志级别字符串
+            message: 日志内容
+            log_type: 日志类型 ('debug', 'info', 'warning', 'error', 'comm')
         """
-        self.serial_port = serial_port
-        if serial_port and serial_port.is_open:
-            port_name = serial_port.port
-            baudrate = serial_port.baudrate
-            self.port_info_label.setText(f"{port_name} @ {baudrate}")
-            self.port_info_label.setStyleSheet("color: #00ff00; font-weight: bold;")
-            print(f"[SerialMonitor] 开始监控串口：{port_name} @ {baudrate}")
-        else:
-            self.port_info_label.setText(tr('not_connected'))
-            self.port_info_label.setStyleSheet("color: #ffaa00; font-weight: bold;")
+        # 存储日志
+        entry = {
+            'timestamp': timestamp,
+            'level': level,
+            'message': message,
+            'type': log_type
+        }
+        self.log_entries.append(entry)
+        
+        # 限制日志数量
+        if len(self.log_entries) > self.max_log_entries:
+            self.log_entries.pop(0)
+        
+        # 显示日志
+        self._display_log_entry(entry)
     
-    def toggle_monitoring(self):
-        """切换监控状态"""
-        if self.is_monitoring:
-            self.stop_monitoring()
-        else:
-            self.start_monitoring()
-    
-    def start_monitoring(self):
-        """开始监控"""
-        if not self.serial_port or not self.serial_port.is_open:
-            self.append_message(f"[Error] {tr('not_connected')}", '#ff0000')
+    def _display_log_entry(self, entry):
+        """显示单条日志"""
+        # 检查过滤
+        if not self._should_display(entry['type']):
             return
         
-        try:
-            self.monitor_timer.start(50)  # 50ms 检查一次
-            self.is_monitoring = True
-            self.start_btn.setText(tr('stop_monitoring'))
-            self.start_btn.setChecked(True)
-            port_name = self.serial_port.port
-            self.append_message(f"[Monitoring] {port_name}", '#00ff00')
-            print(f"[SerialMonitor] 已开始监控：{port_name}")
-        except Exception as e:
-            self.append_message(f"[Error] {str(e)}", '#ff0000')
-            self.is_monitoring = False
-            self.start_btn.setChecked(False)
-    
-    def stop_monitoring(self):
-        """停止监控"""
-        self.monitor_timer.stop()
-        self.is_monitoring = False
-        self.start_btn.setText(tr('start_monitoring'))
-        self.start_btn.setChecked(False)
+        # 设置颜色
+        color_map = {
+            'debug': '#888888',      # 灰色
+            'info': '#00ff00',       # 绿色
+            'warning': '#ffaa00',    # 橙色
+            'error': '#ff0000',      # 红色
+            'comm': '#00aaff',       # 蓝色
+        }
+        color = color_map.get(entry['type'], '#d4d4d4')
         
-        # 注意：不关闭串口，因为这是主程序正在使用的串口
-        if hasattr(self, 'serial_port') and self.serial_port:
-            port_name = self.serial_port.port
-            self.append_message(f"[Stopped monitoring] {port_name}", '#ffaa00')
+        # 格式化显示
+        timestamp_str = entry['timestamp'].strftime('%H:%M:%S.%f')[:-3]  # 毫秒精度
+        html_message = f'<span style="color:#666;">[{timestamp_str}]</span> <span style="color:{color};">[{entry["level"]}] {entry["message"]}</span>'
+        self.display.append(html_message)
+        
+        # 自动滚动
+        if self.auto_scroll_check.isChecked():
+            scrollbar = self.display.verticalScrollBar()
+            scrollbar.setValue(scrollbar.maximum())
     
-    def check_serial_data(self):
-        """检查串口数据"""
-        if self.serial_port and self.serial_port.is_open:
-            try:
-                while self.serial_port.in_waiting > 0:
-                    data = self.serial_port.read(self.serial_port.in_waiting).decode('utf-8', errors='ignore')
-                    if data:
-                        self.append_message(f"RX: {data.strip()}", '#00ff00')
-                        self.data_received.emit(data)
-            except Exception as e:
-                self.append_message(f"[Read Error] {str(e)}", '#ff0000')
+    def _should_display(self, log_type):
+        """检查日志是否应该显示"""
+        if log_type == 'debug' and not self.filter_debug.isChecked():
+            return False
+        if log_type == 'info' and not self.filter_info.isChecked():
+            return False
+        if log_type == 'warning' and not self.filter_warning.isChecked():
+            return False
+        if log_type == 'error' and not self.filter_error.isChecked():
+            return False
+        if log_type == 'comm' and not self.filter_comm.isChecked():
+            return False
+        return True
     
-    def send_data(self, data):
-        """发送数据到串口"""
-        if self.serial_port and self.serial_port.is_open:
+    def apply_filter(self):
+        """应用过滤设置，刷新显示"""
+        # 清空显示
+        self.display.clear()
+        
+        # 重新显示所有日志
+        for entry in self.log_entries:
+            if self._should_display(entry['type']):
+                self._display_log_entry(entry)
+    
+    def clear_display(self):
+        """清空显示区"""
+        self.log_entries.clear()
+        self.display.clear()
+        self.append_message("[日志已清空]", '#888888')
+    
+    def export_logs(self):
+        """导出日志到文件"""
+        from PySide6.QtWidgets import QFileDialog
+        import os
+        
+        file_path, _ = QFileDialog.getSaveFileName(
+            self,
+            "导出日志文件",
+            "",
+            "文本文件 (*.txt);;所有文件 (*)"
+        )
+        
+        if file_path:
             try:
-                self.serial_port.write(data.encode('utf-8'))
-                self.append_message(f"TX: {data.strip()}", '#00aaff')
-                self.data_sent.emit(data)
-                return True
+                with open(file_path, 'w', encoding='utf-8') as f:
+                    for entry in self.log_entries:
+                        timestamp_str = entry['timestamp'].strftime('%Y-%m-%d %H:%M:%S.%f')[:-3]
+                        f.write(f"[{timestamp_str}] [{entry['level']}] {entry['message']}\n")
+                
+                self.append_message(f"[日志已导出到：{os.path.basename(file_path)}]", '#00ff00')
             except Exception as e:
-                self.append_message(f"[Write Error] {str(e)}", '#ff0000')
-        return False
+                self.append_message(f"[导出失败：{str(e)}]", '#ff0000')
     
     def append_message(self, message, color='#ffffff'):
         """添加消息到显示区"""
         timestamp = time.strftime('%H:%M:%S')
         html_message = f'<span style="color:#888;">[{timestamp}]</span> <span style="color:{color};">{message}</span>'
         self.display.append(html_message)
-        
-        if self.auto_scroll_check.isChecked():
-            scrollbar = self.display.verticalScrollBar()
-            scrollbar.setValue(scrollbar.maximum())
-    
-    def clear_display(self):
-        """清空显示区"""
-        self.display.clear()
-        self.append_message("[Display cleared]", '#888888')
     
     def closeEvent(self, event):
         """关闭窗口时清理资源"""
-        self.stop_monitoring()
         event.accept()

@@ -22,7 +22,7 @@ from optical_alignment import OpticalAlignment
 from gui_components.image_viewer_widget import ImageViewerWidget
 from gui_components.realtime_controller_widget import RealtimeControllerWidget
 from gui_components.language_settings import LanguageSettingsDialog
-from gui_components.serial_monitor import SerialMonitorWidget
+from gui_components.serial_monitor import LogMonitorWidget
 from gcode_runner import GCodeRunner
 
 # 配置管理
@@ -552,9 +552,9 @@ class DeviceControlMainWindow(QMainWindow):
         lang_action = tools_menu.addAction(tr('action_language_settings'))
         lang_action.triggered.connect(self.open_language_settings)
         
-        # 串口监视器动作
-        serial_action = tools_menu.addAction(tr('action_serial_monitor'))
-        serial_action.triggered.connect(self.show_serial_monitor)
+        # 日志监视器动作
+        log_action = tools_menu.addAction(tr('action_log_monitor'))
+        log_action.triggered.connect(self.show_log_monitor)
         
         # 关于菜单
         help_menu = menubar.addMenu(tr('menu_help'))
@@ -571,20 +571,16 @@ class DeviceControlMainWindow(QMainWindow):
             self.config.language = self.translator.current_language
             save_config()
     
-    def show_serial_monitor(self):
-        """显示串口监视器（独立窗口）"""
-        if not hasattr(self, 'serial_monitor') or self.serial_monitor is None:
-            # 创建新的串口监视器窗口，传入当前串口对象
-            self.serial_monitor = SerialMonitorWidget(serial_port=self.oms.serial_port if hasattr(self.oms, 'serial_port') else None)
-            
-            # 连接信号（如果需要与主窗口通信）
-            # self.serial_monitor.data_received.connect(self.on_serial_data_received)
-            # self.serial_monitor.data_sent.connect(self.on_serial_data_sent)
+    def show_log_monitor(self):
+        """显示日志监视器（独立窗口）"""
+        if not hasattr(self, 'log_monitor') or self.log_monitor is None:
+            # 创建新的日志监视器窗口
+            self.log_monitor = LogMonitorWidget()
         
         # 显示并激活窗口
-        self.serial_monitor.showNormal()  # 以正常窗口模式显示
-        self.serial_monitor.raise_()      # 置顶
-        self.serial_monitor.activateWindow()  # 激活窗口
+        self.log_monitor.showNormal()  # 以正常窗口模式显示
+        self.log_monitor.raise_()      # 置顶
+        self.log_monitor.activateWindow()  # 激活窗口
     
     def update_ui_language(self):
         """更新界面语言"""
