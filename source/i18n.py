@@ -132,6 +132,12 @@ TRANSLATIONS = {
         'realtime_mouse_control_btn': '实时鼠标控制',
         'xy_range_label': 'XY 范围:',
         'z_range_label': 'Z 范围:',
+        
+        # 启动对话框
+        'warning_title': '警告',
+        'please_select_camera': '请选择相机！',
+        'please_select_port': '请选择串口！',
+        'camera_connect_failed': '相机连接失败',
     },
     
     'en_US': {
@@ -262,6 +268,12 @@ TRANSLATIONS = {
         'realtime_mouse_control_btn': 'Realtime Mouse Control',
         'xy_range_label': 'XY-Range:',
         'z_range_label': 'Z-Range:',
+        
+        # Startup Dialog
+        'warning_title': 'Warning',
+        'please_select_camera': 'Please select a camera!',
+        'please_select_port': 'Please select a serial port!',
+        'camera_connect_failed': 'Failed to connect to camera',
     },
 }
 

@@ -24,6 +24,9 @@ from PySide6.QtGui import QPixmap, QFont
 import serial
 import serial.tools.list_ports
 
+# 多语言支持
+from i18n import tr
+
 # Lazy imports - only load when needed
 def import_cv2():
     import cv2
@@ -184,7 +187,7 @@ class StartupDialog(QDialog):
         # Get selected camera
         current_camera_item = self.camera_list.currentItem()
         if not current_camera_item:
-            QMessageBox.warning(self, "Warning", "Please select a camera!")
+            QMessageBox.warning(self, tr('warning_title'), tr('please_select_camera'))
             return
         
         camera_text = current_camera_item.text()
@@ -201,7 +204,7 @@ class StartupDialog(QDialog):
         if port_data:
             self.selected_port = port_data
         else:
-            QMessageBox.warning(self, "Warning", "Please select a serial port!")
+            QMessageBox.warning(self, tr('warning_title'), tr('please_select_port'))
             return
         
         super().accept()
@@ -272,7 +275,7 @@ def main():
         # Run the camera loop (which also runs qt event loop)
         camera.grab_loop(callback=process_frame)
     else:
-        QMessageBox.warning(None, "Warning", f"Failed to connect to camera: {camera_type}")
+        QMessageBox.warning(None, tr('warning_title'), f"{tr('camera_connect_failed')}: {camera_type}")
         # Start the Qt event loop anyway
         app.exec()
 
