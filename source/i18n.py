@@ -34,6 +34,14 @@ TRANSLATIONS = {
         'home_btn': '回零',
         'current_pos': '当前位置:',
         
+        # 轴向按钮
+        'axis_x_plus': 'X+',
+        'axis_x_minus': 'X-',
+        'axis_y_plus': 'Y+',
+        'axis_y_minus': 'Y-',
+        'axis_z_plus': 'Z+',
+        'axis_z_minus': 'Z-',
+        
         # 速度控制
         'speed_group': '速度控制',
         'speed_label': '速度:',
@@ -150,6 +158,14 @@ TRANSLATIONS = {
         'move_btn': 'Move',
         'home_btn': 'Home',
         'current_pos': 'Current Position:',
+        
+        # Axis Buttons
+        'axis_x_plus': 'X+',
+        'axis_x_minus': 'X-',
+        'axis_y_plus': 'Y+',
+        'axis_y_minus': 'Y-',
+        'axis_z_plus': 'Z+',
+        'axis_z_minus': 'Z-',
         
         # Speed Control
         'speed_group': 'Speed Control',

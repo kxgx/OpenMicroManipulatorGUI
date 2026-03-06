@@ -111,18 +111,18 @@ class DeviceControlMainWindow(QMainWindow):
         grid = QGridLayout()
         grid.setSpacing(10)
 
-        grid.addWidget(self.create_button("Y-", lambda: self.move_axis(1, -1), font), 0, 1)
-        grid.addWidget(self.create_button("Z+", lambda: self.move_axis(2, +1), font), 0, 3)
-        grid.addWidget(self.create_button("X-", lambda: self.move_axis(0, -1), font), 1, 0)
+        grid.addWidget(self.create_button(tr('axis_y_minus'), lambda: self.move_axis(1, -1), font), 0, 1)
+        grid.addWidget(self.create_button(tr('axis_z_plus'), lambda: self.move_axis(2, +1), font), 0, 3)
+        grid.addWidget(self.create_button(tr('axis_x_minus'), lambda: self.move_axis(0, -1), font), 1, 0)
 
         center_label = QLabel("•")
         center_label.setFont(QFont("Arial", 30))
         center_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
         grid.addWidget(center_label, 1, 1)
 
-        grid.addWidget(self.create_button("X+", lambda: self.move_axis(0, +1), font), 1, 2)
-        grid.addWidget(self.create_button("Y+", lambda: self.move_axis(1, +1), font), 2, 1)
-        grid.addWidget(self.create_button("Z-", lambda: self.move_axis(2, -1), font), 2, 3)
+        grid.addWidget(self.create_button(tr('axis_x_plus'), lambda: self.move_axis(0, +1), font), 1, 2)
+        grid.addWidget(self.create_button(tr('axis_y_plus'), lambda: self.move_axis(1, +1), font), 2, 1)
+        grid.addWidget(self.create_button(tr('axis_z_minus'), lambda: self.move_axis(2, -1), font), 2, 3)
 
         main_layout.addLayout(grid)
 
