@@ -1,10 +1,10 @@
 {
   "language": "zh_CN",
   "window": {
-    "width": 989,
+    "width": 974,
     "height": 842,
-    "x": 945,
-    "y": 425
+    "x": 1213,
+    "y": 304
   },
   "serial": {
     "port": "COM6",

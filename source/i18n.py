@@ -127,6 +127,11 @@ TRANSLATIONS = {
         'alignment_complete_msg': '三点校准完成。',
         'save_transform_title': '保存变换',
         'confirm_save_transform': '确定要保存吗？',
+        
+        # 实时控制
+        'realtime_mouse_control_btn': '实时鼠标控制',
+        'xy_range_label': 'XY 范围:',
+        'z_range_label': 'Z 范围:',
     },
     
     'en_US': {
@@ -252,6 +257,11 @@ TRANSLATIONS = {
         'alignment_complete_msg': '3-point alignment complete.',
         'save_transform_title': 'Save Transform',
         'confirm_save_transform': 'Are you sure?',
+        
+        # Realtime Control
+        'realtime_mouse_control_btn': 'Realtime Mouse Control',
+        'xy_range_label': 'XY-Range:',
+        'z_range_label': 'Z-Range:',
     },
 }
 

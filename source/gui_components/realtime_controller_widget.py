@@ -21,6 +21,9 @@ from PySide6.QtGui import QCursor, QMouseEvent
 from hardware.open_micro_stage_api import OpenMicroStageInterface
 import numpy as np
 
+# 多语言支持
+from i18n import tr
+
 from PySide6.QtCore import QThread, Signal
 import numpy as np
 from PySide6.QtGui import QCursor
@@ -129,7 +132,7 @@ class RealtimeControllerWidget(QWidget):
         self.base_widget.installEventFilter(self)
 
     def setup_ui(self):
-        self.mouse_control_button = QPushButton("Realtime Mouse Control")
+        self.mouse_control_button = QPushButton(tr('realtime_mouse_control_btn'))
         self.mouse_control_button.setCheckable(True)
         self.mouse_control_button.setSizePolicy(
             QSizePolicy.Policy.Preferred,
@@ -142,9 +145,9 @@ class RealtimeControllerWidget(QWidget):
         self.spinbox_z_range = QDoubleSpinBox()
         self.spinbox_z_range.setValue(0.0)
 
-        label1 = QLabel("XY-Range")
+        label1 = QLabel(tr('xy_range_label'))
         label1.setAlignment(Qt.AlignmentFlag.AlignRight)
-        label2 = QLabel("Z-Range")
+        label2 = QLabel(tr('z_range_label'))
         label2.setAlignment(Qt.AlignmentFlag.AlignRight)
 
         layout = QGridLayout(self)
