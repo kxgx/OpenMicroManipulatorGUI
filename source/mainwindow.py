@@ -18,7 +18,11 @@ from image_processing.image_point_tracker import ImagePointTracker
 from optical_alignment import OpticalAlignment
 from gui_components.image_viewer_widget import ImageViewerWidget
 from gui_components.realtime_controller_widget import RealtimeControllerWidget
+from gui_components.language_settings import LanguageSettingsDialog
 from gcode_runner import GCodeRunner
+
+# 多语言支持
+from i18n import get_translator, tr
 
 from PySide6.QtWidgets import (
     QApplication, QWidget, QPushButton, QVBoxLayout, QHBoxLayout, QLabel, QGridLayout, QMessageBox, QButtonGroup,
@@ -46,6 +50,10 @@ class DeviceControlMainWindow(QMainWindow):
 
         # Trackers
         self.image_point_tracker = ImagePointTracker()
+        
+        # 翻译器
+        self.translator = get_translator()
+        
         self.init_ui()
 
         if self.oms.is_connected():
@@ -53,9 +61,13 @@ class DeviceControlMainWindow(QMainWindow):
             self.oms.set_max_acceleration(self.accel_spinbox.value(), 5000)
 
     def init_ui(self):
-        self.setWindowTitle("Open Micro-Manipulator Control")
+        # 设置窗口标题（使用翻译）
+        self.setWindowTitle(tr('window_title'))
         self.setStyleSheet("background-color: #2b2b2b; color: white;")
-
+            
+        # 创建菜单栏
+        self.create_menu_bar()
+    
         # Central Widget and Main Horizontal Layout
         central_widget = QWidget()
         self.setCentralWidget(central_widget)
@@ -487,6 +499,70 @@ class DeviceControlMainWindow(QMainWindow):
         T = self.oms.get_workspace_transform()
         json.dump(T.tolist(), open("transform.json", "w"))
 
+    def keyPressEvent(self, event):
+        if event.key() == Qt.Key.Key_A:
+            self.move_axis(0, -1)
+        elif event.key() == Qt.Key.Key_D:
+            self.move_axis(0, +1)
+        elif event.key() == Qt.Key.Key_W:
+            self.move_axis(1, -1)
+        elif event.key() == Qt.Key.Key_S:
+            self.move_axis(1, +1)
+
+    # ==================== 多语言支持 ====================
+    
+    def create_menu_bar(self):
+        """创建菜单栏"""
+        menubar = self.menuBar()
+        
+        # 工具菜单
+        tools_menu = menubar.addMenu(tr('menu_tools'))
+        
+        # 语言设置动作
+        lang_action = tools_menu.addAction(tr('action_language_settings'))
+        lang_action.triggered.connect(self.open_language_settings)
+        
+        # 关于菜单
+        help_menu = menubar.addMenu(tr('menu_help'))
+        about_action = help_menu.addAction(tr('action_about'))
+        about_action.triggered.connect(self.show_about)
+    
+    def open_language_settings(self):
+        """打开语言设置对话框"""
+        dialog = LanguageSettingsDialog(self)
+        if dialog.exec() == QDialog.DialogCode.Accepted:
+            # 语言已更改，刷新界面
+            self.update_ui_language()
+    
+    def update_ui_language(self):
+        """更新界面语言"""
+        # 更新窗口标题
+        self.setWindowTitle(tr('window_title'))
+        
+        # 更新菜单栏
+        for menu in self.menuBar().children():
+            if hasattr(menu, 'setTitle'):
+                if menu.title() == tr('menu_tools') or 'Tools' in menu.title():
+                    menu.setTitle(tr('menu_tools'))
+                elif menu.title() == tr('menu_help') or 'Help' in menu.title():
+                    menu.setTitle(tr('menu_help'))
+        
+        # 触发整个界面的样式表更新（可选）
+        self.setStyleSheet(self.styleSheet())
+    
+    def show_about(self):
+        """显示关于对话框"""
+        QMessageBox.about(
+            self,
+            tr('dlg_title_about'),
+            f"<h2>OpenMicroManipulator</h2>"
+            f"<p>{tr('about_version')} v0.2.0</p>"
+            f"<p>{tr('about_description')}</p>"
+            f"<p>{tr('about_license')}</p>"
+        )
+    
+    # ==================== 键盘事件 ====================
+    
     def keyPressEvent(self, event):
         if event.key() == Qt.Key.Key_A:
             self.move_axis(0, -1)

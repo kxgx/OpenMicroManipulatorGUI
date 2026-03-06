@@ -75,6 +75,17 @@ TRANSLATIONS = {
         'language_label': '界面语言:',
         'language_restart_info': '语言更改后需要重启应用程序才能完全生效。',
         'msg_language_change': '语言已更改，部分界面元素可能需要重启后才能完全更新。是否继续？',
+        
+        # 菜单和动作
+        'menu_tools': '工具 (&T)',
+        'menu_help': '帮助 (&H)',
+        'action_language_settings': '语言设置...',
+        'action_about': '关于',
+        
+        # 关于对话框
+        'about_version': '版本',
+        'about_description': '微操作台控制系统 - 基于 PySide6 和 Python',
+        'about_license': 'License: MIT',
     },
     
     'en_US': {
@@ -148,6 +159,17 @@ TRANSLATIONS = {
         'language_label': 'Language:',
         'language_restart_info': 'The application needs to be restarted for language changes to take full effect.',
         'msg_language_change': 'Language has been changed. Some interface elements may require a restart to fully update. Continue?',
+        
+        # Menus and Actions
+        'menu_tools': 'Tools(&T)',
+        'menu_help': 'Help(&H)',
+        'action_language_settings': 'Language Settings...',
+        'action_about': 'About',
+        
+        # About Dialog
+        'about_version': 'Version',
+        'about_description': 'Micro Stage Control System - Based on PySide6 and Python',
+        'about_license': 'License: MIT',
     },
 }
 
