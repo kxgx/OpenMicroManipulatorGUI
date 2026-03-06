@@ -31,6 +31,9 @@ from app_config import get_config, save_config
 # 多语言支持
 from i18n import get_translator, tr
 
+# 日志管理器
+import log_manager
+
 # 重型模块使用延迟加载（首次使用时才导入）
 cv2 = LazyLoader('cv2')  # OpenCV - 约 200ms
 np_lazy = LazyLoader('numpy')  # NumPy - 约 50ms
@@ -73,17 +76,46 @@ class DeviceControlMainWindow(QMainWindow):
         if saved_language:
             self.translator.set_language(saved_language)
         
+        # 初始化日志回调
+        self._init_log_callback()
+        
         # 等待关键模块加载完成（最多等待 5 秒）
         start_time = time.time()
         OptimizedImports.wait_loading(timeout=5.0)
         load_time = time.time() - start_time
-        print(f"[启动优化] 模块加载完成，耗时：{load_time*1000:.0f}ms")
+        log_manager.info(f"[启动优化] 模块加载完成，耗时：{load_time*1000:.0f}ms")
         
         self.init_ui()
 
         if self.oms.is_connected():
             self.current_pos = list(self.oms.read_current_position(True))
             self.oms.set_max_acceleration(self.accel_spinbox.value(), 5000)
+    
+    def _init_log_callback(self):
+        """初始化日志回调，将日志发送到日志监视器"""
+        def log_callback(timestamp, level, message):
+            # 确定日志类型
+            log_type_map = {
+                'DEBUG': 'debug',
+                'INFO': 'info',
+                'WARNING': 'warning',
+                'ERROR': 'error',
+                'CRITICAL': 'error',
+                'COMM': 'comm'
+            }
+            log_type = log_type_map.get(level, 'info')
+            
+            # 发送到日志监视器
+            if hasattr(self, 'log_monitor') and self.log_monitor:
+                from datetime import datetime
+                try:
+                    ts = datetime.strptime(timestamp, '%H:%M:%S.%f')
+                except:
+                    ts = datetime.now()
+                self.log_monitor.add_log_entry(ts, level, message, log_type)
+        
+        # 注册回调
+        log_manager.add_callback(log_callback)
 
     def init_ui(self):
         # 设置窗口标题（使用翻译）

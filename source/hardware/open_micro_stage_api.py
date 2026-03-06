@@ -14,6 +14,12 @@ import serial
 import numpy as np
 from colorama import Fore, Style, init
 
+# 导入日志管理器
+import sys
+import os
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+import log_manager
+
 # --- SerialInterface --------------------------------------------------------------------------------------------------
 
 class SerialInterface:
@@ -86,6 +92,7 @@ class SerialInterface:
                 self.serial = serial.Serial(self.port, self.baud_rate, timeout=2)
                 print(f" [OK]")
                 print(Style.RESET_ALL, end='')
+                log_manager.info(f"串口已连接：{self.port} @ {self.baud_rate}")
                 return True
             except (serial.SerialException, OSError) as e:
                 print('.', end='')
@@ -94,6 +101,7 @@ class SerialInterface:
         print(f" [FAILED] Timeout after {timeout} seconds.")
         print(f"[SerialInterface] Connection is permanently closed")
         print(Style.RESET_ALL, end='')
+        log_manager.error(f"串口连接失败：{self.port}")
         self.serial = None
         return False
 
@@ -181,6 +189,9 @@ class SerialInterface:
 
             cmd = (cmd.strip() + "\n")
             self.command_msg_callback(cmd, None, '')
+            
+            # 记录发送的命令
+            log_manager.comm(cmd.strip(), 'TX')
 
             # Send command
             self.serial.write(cmd.encode('ascii'))
@@ -193,11 +204,21 @@ class SerialInterface:
                 if remaining <= 0:
                     self._waiting_for_response = False
                     print(Fore.MAGENTA + f"[SerialInterface] Command timeout, device didn't reply in time" + Style.RESET_ALL)
+                    log_manager.error(f"命令超时：{cmd.strip()}")
                     return SerialInterface.ReplyStatus.TIMEOUT, self._response_string
                 self._condition.wait(timeout=remaining)
 
             self._waiting_for_response = False
             self.command_msg_callback(self._response_string, self._response_status, self._response_error_msg)
+            
+            # 记录响应
+            if self._response_string:
+                for line in self._response_string.strip().split('\n'):
+                    if line:
+                        log_manager.comm(line.strip(), 'RX')
+            if self._response_status:
+                log_manager.comm(self._response_status.name, 'RX')
+            
             return self._response_status, self._response_string
 
     def close(self):
