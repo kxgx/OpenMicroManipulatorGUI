@@ -79,8 +79,8 @@ jobs:
           pyinstaller --clean build.spec
           echo "=== 检查打包结果 ==="
           if (Test-Path "dist\OpenMicroManipulator.exe") {
-            $filesize = (Get-Item "dist\OpenMicroManipulator.exe").Length / 1MB
-            Write-Host "✅ EXE 打包成功，文件大小：{0:N2} MB" -f $filesize
+            $filesize = [math]::Round((Get-Item "dist\OpenMicroManipulator.exe").Length / 1MB, 2)
+            Write-Host "✅ EXE 打包成功，文件大小：$filesize MB"
           } else {
             Write-Host "❌ EXE 打包失败"
             Write-Host "当前目录内容:"
