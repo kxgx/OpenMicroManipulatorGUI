@@ -572,12 +572,19 @@ class DeviceControlMainWindow(QMainWindow):
             save_config()
     
     def show_serial_monitor(self):
-        """显示串口监视器"""
+        """显示串口监视器（独立窗口）"""
         if not hasattr(self, 'serial_monitor') or self.serial_monitor is None:
-            self.serial_monitor = SerialMonitorWidget(self)
-        self.serial_monitor.show()
-        self.serial_monitor.raise_()
-        self.serial_monitor.activateWindow()
+            # 创建新的串口监视器窗口
+            self.serial_monitor = SerialMonitorWidget()
+            
+            # 连接信号（如果需要与主窗口通信）
+            # self.serial_monitor.data_received.connect(self.on_serial_data_received)
+            # self.serial_monitor.data_sent.connect(self.on_serial_data_sent)
+        
+        # 显示并激活窗口
+        self.serial_monitor.showNormal()  # 以正常窗口模式显示
+        self.serial_monitor.raise_()      # 置顶
+        self.serial_monitor.activateWindow()  # 激活窗口
     
     def update_ui_language(self):
         """更新界面语言"""
@@ -620,9 +627,11 @@ class DeviceControlMainWindow(QMainWindow):
         save_config()
         print("[Config] 配置已自动保存")
         
-        # 停止串口监控
+        # 停止串口监控并关闭窗口
         if hasattr(self, 'serial_monitor') and self.serial_monitor:
             self.serial_monitor.stop_monitoring()
+            self.serial_monitor.close()
+            self.serial_monitor = None
         
         event.accept()
     

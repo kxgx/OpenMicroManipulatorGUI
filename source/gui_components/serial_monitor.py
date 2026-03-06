@@ -13,7 +13,7 @@ from i18n import tr
 
 
 class SerialMonitorWidget(QWidget):
-    """串口监视器组件"""
+    """串口监视器独立窗口组件"""
     
     # 信号
     data_received = Signal(str)
@@ -25,6 +25,11 @@ class SerialMonitorWidget(QWidget):
         self.monitor_timer = QTimer()
         self.monitor_timer.timeout.connect(self.check_serial_data)
         self.is_monitoring = False
+        
+        # 设置为独立窗口
+        self.setWindowTitle(tr('serial_monitor_title'))
+        self.setMinimumSize(600, 400)
+        self.resize(800, 600)
         
         self.init_ui()
     
